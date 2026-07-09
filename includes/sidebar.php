@@ -1,7 +1,7 @@
 <?php
 // includes/sidebar.php
-if (!isset($activePage)) { $activePage = ''; }
-function navActive($key, $activePage){ return $key === $activePage ? 'active' : ''; }
+$__currentFile = basename($_SERVER['PHP_SELF']);
+function navActive($file, $current){ return $file === $current ? 'active' : ''; }
 ?>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
@@ -17,7 +17,7 @@ function navActive($key, $activePage){ return $key === $activePage ? 'active' : 
   <nav class="nav-scroll">
     <div class="nav-group">
       <div class="nav-group-label">Main</div>
-      <a href="dashboard.php" class="nav-link <?php echo navActive('dashboard', $activePage); ?>">
+      <a href="dashboard.php" class="nav-link <?php echo navActive('dashboard.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8" />
           <rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8" />
@@ -30,7 +30,7 @@ function navActive($key, $activePage){ return $key === $activePage ? 'active' : 
 
     <div class="nav-group">
       <div class="nav-group-label">Manage</div>
-      <a href="tickets.php" class="nav-link <?php echo navActive('tickets', $activePage); ?>">
+      <a href="tickets.php" class="nav-link <?php echo navActive('tickets.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor"
             stroke-width="1.8" stroke-linejoin="round" />
@@ -38,7 +38,7 @@ function navActive($key, $activePage){ return $key === $activePage ? 'active' : 
         </svg>
         Tickets <span class="nav-badge">12</span>
       </a>
-      <a href="drivers.php" class="nav-link <?php echo navActive('drivers', $activePage); ?>">
+      <a href="drivers.php" class="nav-link <?php echo navActive('drivers.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <circle cx="9" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8" />
           <path d="M2.5 19c1-3.3 3.7-5.2 6.5-5.2s5.5 1.9 6.5 5.2" stroke="currentColor" stroke-width="1.8"
@@ -46,7 +46,7 @@ function navActive($key, $activePage){ return $key === $activePage ? 'active' : 
         </svg>
         Drivers
       </a>
-      <a href="miles.php" class="nav-link <?php echo navActive('miles', $activePage); ?>">
+      <a href="miles.php" class="nav-link <?php echo navActive('miles.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
@@ -58,14 +58,14 @@ function navActive($key, $activePage){ return $key === $activePage ? 'active' : 
 
     <div class="nav-group">
       <div class="nav-group-label">System</div>
-      <a href="reports.php" class="nav-link <?php echo navActive('reports', $activePage); ?>">
+      <a href="reports.php" class="nav-link <?php echo navActive('reports.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M21 12v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6M15 15l4-4M15 15h-4M15 15l4-4"
             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         Reports
       </a>
-      <a href="settings.php" class="nav-link <?php echo navActive('settings', $activePage); ?>">
+      <a href="settings.php" class="nav-link <?php echo navActive('settings.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8" />
           <path
@@ -91,4 +91,4 @@ function navActive($key, $activePage){ return $key === $activePage ? 'active' : 
     </button>
   </div>
 </aside>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div> 

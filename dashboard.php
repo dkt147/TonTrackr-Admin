@@ -1,21 +1,15 @@
-<?php
-// dashboard.php
-$pageTitle  = 'Dashboard';
-$activePage = 'dashboard';
-?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TonTrackr · <?php echo htmlspecialchars($pageTitle); ?></title>
+    <title>TonTrackr | Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Bitter:ital,wght@1,500;1,600&display=swap"
         rel="stylesheet">
 
-    <!-- ====================== ALL INTERNAL STYLES HERE ====================== -->
     <style>
         :root {
             --green: #74AA50;
@@ -80,7 +74,7 @@ $activePage = 'dashboard';
         }
 
         /* ----- SIDEBAR ----- */
-        .app-shell {
+        .main-wrapper {
             display: flex;
             min-height: 100vh;
             background: var(--black);
@@ -261,7 +255,7 @@ $activePage = 'dashboard';
         }
 
         /* ----- TOPBAR & MAIN ----- */
-        .main-area {
+        .page-wrapper {
             flex: 1;
             margin-left: var(--sidebar-w);
             min-width: 0;
@@ -393,7 +387,7 @@ $activePage = 'dashboard';
         }
 
         /* ----- CONTENT PAGE ----- */
-        .content {
+        .page-content {
             padding: 32px;
             flex: 1;
         }
@@ -645,7 +639,7 @@ $activePage = 'dashboard';
                 transform: translateX(0);
             }
 
-            .main-area {
+            .page-wrapper {
                 margin-left: 0;
             }
 
@@ -667,178 +661,256 @@ $activePage = 'dashboard';
                 display: none;
             }
 
-            .content {
+            .page-content {
                 padding: 20px;
             }
         }
     </style>
-    <!-- ====================== END INTERNAL STYLES ====================== -->
-
 </head>
 
 <body>
+    <div class="main-wrapper">
+        <?php include 'includes/sidebar.php' ?>
+        <div class="page-wrapper">
+            <?php include 'includes/header.php' ?>
+            <div class="page-content">
+                <div class="page-head">
+                    <div>
+                        <p class="page-eyebrow">Fleet Overview</p>
+                        <h1 class="page-title">Good morning, John</h1>
+                        <p class="page-sub">Here's what's happening across your fleet today.</p>
+                    </div>
+                </div>
+                <!-- ADD THIS INSIDE dashboard.php, just below <div class="page-head"> -->
+                <div style="margin-bottom: 25px;">
+                    <button onclick="window.location.href='add-ticket.php'" 
+                            style="width:100%; background: var(--green); color: #fff; border:none; padding: 16px; border-radius: var(--radius-lg); font-weight: 700; font-size: 16px; letter-spacing: 0.5px; cursor: pointer; display:flex; align-items:center; justify-content:center; gap: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        SCAN / ENTER TICKET
+                    </button>
+                </div>
+                <!-- STAT CARDS -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value">$842</div>
+                        <div class="stat-label">Today's Revenue</div>
+                    </div>
 
-    <!-- Include Header (jo Sidebar aur Topbar laayega) -->
-    <?php include __DIR__ . '/includes/header.php'; ?>
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value">$3.2K</div>
+                        <div class="stat-label">This Week</div>
+                    </div>
 
-    <!-- Dashboard Content -->
-    <?php
-    $stats = [
-        'today'      => ['value' => '$842',  'label' => "Today's Revenue"],
-        'week'       => ['value' => '$3.2K', 'label' => 'This Week'],
-        'biweekly'   => ['value' => '$6.1K', 'label' => 'Bi-Weekly'],
-        'miles'      => ['value' => '1,240',  'label' => 'Total Miles'],
-    ];
-    ?>
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value">$6.1K</div>
+                        <div class="stat-label">Bi-Weekly</div>
+                    </div>
 
-    <div class="page-head">
-        <div>
-            <p class="page-eyebrow">Fleet Overview</p>
-            <h1 class="page-title">Good morning, John</h1>
-            <p class="page-sub">Here's what's happening across your fleet today.</p>
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value">1,240</div>
+                        <div class="stat-label">Total Miles</div>
+                    </div>
+                </div>
+
+                <!-- PANEL GRID -->
+                <div class="panel-grid">
+
+                    <div class="card">
+                        <div class="card-head">
+                            <span class="card-title">Recent Tickets</span>
+                            <span class="card-link" onclick="window.location.href='tickets.php'">View all</span>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Ticket #</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span style="font-weight:600; color:#fff;">330</span></td>
+                                    <td style="color:#888;">05/14/26</td>
+                                    <td>
+                                        <div class="cell-user">
+                                            <div>
+                                                <div class="name">IFG Grangeville</div>
+                                                <div class="sub">IFG</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="color-green">$866.18</td>
+                                    <td><span class="badge-good">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span style="font-weight:600; color:#fff;">1450</span></td>
+                                    <td style="color:#888;">05/13/26</td>
+                                    <td>
+                                        <div class="cell-user">
+                                            <div>
+                                                <div class="name">Run Of The Mill</div>
+                                                <div class="sub">CLW</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="color-green">$1,292.60</td>
+                                    <td><span class="badge-good">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span style="font-weight:600; color:#fff;">330</span></td>
+                                    <td style="color:#888;">05/13/26</td>
+                                    <td>
+                                        <div class="cell-user">
+                                            <div>
+                                                <div class="name">Jungle Badger</div>
+                                                <div class="sub">IFG</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="color-green">$22,110.90</td>
+                                    <td><span class="badge-good">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span style="font-weight:600; color:#fff;">110</span></td>
+                                    <td style="color:#888;">05/14/26</td>
+                                    <td>
+                                        <div class="cell-user">
+                                            <div>
+                                                <div class="name">Jungle Badger</div>
+                                                <div class="sub">CLW</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="color-green">$680.15</td>
+                                    <td><span class="badge-good">Paid</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:20px;">
+
+                        <div class="card">
+                            <div class="card-head">
+                                <span class="card-title">Revenue Trend</span>
+                                <span class="card-link">Last 7 days</span>
+                            </div>
+                            <div class="chart-placeholder">
+                                <div class="chart-bar" style="height:30%;"></div>
+                                <div class="chart-bar" style="height:60%;"></div>
+                                <div class="chart-bar" style="height:45%;"></div>
+                                <div class="chart-bar active" style="height:85%;"></div>
+                                <div class="chart-bar" style="height:55%;"></div>
+                                <div class="chart-bar" style="height:70%;"></div>
+                                <div class="chart-bar" style="height:90%;"></div>
+                            </div>
+                            <p style="color:#888; font-size:13px; margin-top:12px; text-align:center;">$14,200 total
+                                this week</p>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-head">
+                                <span class="card-title">Quick Actions</span>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="quick-action-btn" onclick="window.location.href='add-ticket.php'">
+                                    <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" /></svg></span>
+                                    Create New Ticket
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='miles.php'">
+                                    <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M4 17l4-5 3 3 4-6 5 8H4Z" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linejoin="round" /></svg></span>
+                                    Log Miles
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='drivers.php'">
+                                    <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="9" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8" />
+                                        </svg></span>
+                                    Manage Drivers
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- STAT CARDS -->
-    <div class="stats-grid">
-        <?php foreach ($stats as $key => $stat): ?>
-        <div class="stat-card">
-            <div class="stat-top">
-                <div class="stat-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" />
-                        <path d="M12 6v6l4 2" />
-                    </svg>
-                </div>
-            </div>
-            <div class="stat-value"><?php echo $stat['value']; ?></div>
-            <div class="stat-label"><?php echo $stat['label']; ?></div>
-        </div>
-        <?php endforeach; ?>
-    </div>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+    </script>
 
-    <!-- PANEL GRID -->
-    <div class="panel-grid">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bars = document.querySelectorAll('.chart-placeholder .chart-bar');
+            bars.forEach(bar => {
+                const targetHeight = bar.style.height;
+                bar.style.height = '0%';
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        bar.style.transition = 'height .6s ease';
+                        bar.style.height = targetHeight;
+                    }, 50);
+                });
+            });
+        });
+    </script>
 
-        <div class="card">
-            <div class="card-head">
-                <span class="card-title">Recent Tickets</span>
-                <span class="card-link" onclick="window.location.href='tickets.php'">View all</span>
-            </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Ticket #</th>
-                        <th>Date</th>
-                        <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span style="font-weight:600; color:#fff;">330</span></td>
-                        <td style="color:#888;">05/14/26</td>
-                        <td>
-                            <div class="cell-user">
-                                <div>
-                                    <div class="name">IFG Grangeville</div>
-                                    <div class="sub">IFG</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="color-green">$866.18</td>
-                        <td><span class="badge-good">Paid</span></td>
-                    </tr>
-                    <tr>
-                        <td><span style="font-weight:600; color:#fff;">1450</span></td>
-                        <td style="color:#888;">05/13/26</td>
-                        <td>
-                            <div class="cell-user">
-                                <div>
-                                    <div class="name">Run Of The Mill</div>
-                                    <div class="sub">CLW</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="color-green">$1,292.60</td>
-                        <td><span class="badge-good">Paid</span></td>
-                    </tr>
-                    <tr>
-                        <td><span style="font-weight:600; color:#fff;">330</span></td>
-                        <td style="color:#888;">05/13/26</td>
-                        <td>
-                            <div class="cell-user">
-                                <div>
-                                    <div class="name">Jungle Badger</div>
-                                    <div class="sub">IFG</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="color-green">$22,110.90</td>
-                        <td><span class="badge-good">Paid</span></td>
-                    </tr>
-                    <tr>
-                        <td><span style="font-weight:600; color:#fff;">110</span></td>
-                        <td style="color:#888;">05/14/26</td>
-                        <td>
-                            <div class="cell-user">
-                                <div>
-                                    <div class="name">Jungle Badger</div>
-                                    <div class="sub">CLW</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="color-green">$680.15</td>
-                        <td><span class="badge-good">Paid</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <script>
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.opacity = '0.7';
+            });
+        });
+    </script>
+</body>
 
-        <div style="display:flex; flex-direction:column; gap:20px;">
-
-            <div class="card">
-                <div class="card-head">
-                    <span class="card-title">Revenue Trend</span>
-                    <span class="card-link">Last 7 days</span>
-                </div>
-                <div class="chart-placeholder">
-                    <div class="chart-bar" style="height:30%;"></div>
-                    <div class="chart-bar" style="height:60%;"></div>
-                    <div class="chart-bar" style="height:45%;"></div>
-                    <div class="chart-bar active" style="height:85%;"></div>
-                    <div class="chart-bar" style="height:55%;"></div>
-                    <div class="chart-bar" style="height:70%;"></div>
-                    <div class="chart-bar" style="height:90%;"></div>
-                </div>
-                <p style="color:#888; font-size:13px; margin-top:12px; text-align:center;">$14,200 total this week</p>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <span class="card-title">Quick Actions</span>
-                </div>
-                <div class="quick-actions">
-                    <button class="quick-action-btn" onclick="window.location.href='tickets.php?add=1'">
-                        <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" /></svg></span>
-                        Create New Ticket
-                    </button>
-                    <button class="quick-action-btn" onclick="window.location.href='miles.php'">
-                        <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M4 17l4-5 3 3 4-6 5 8H4Z" stroke="currentColor" stroke-width="1.8"
-                                    stroke-linejoin="round" /></svg></span>
-                        Log Miles
-                    </button>
-                    <button class="quick-action-btn" onclick="window.location.href='drivers.php'">
-                        <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <circle cx="9" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8" /></svg></span>
-                        Manage Drivers
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div>
+</html>
