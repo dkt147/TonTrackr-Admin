@@ -53,7 +53,7 @@ $activePage = 'tickets';
         .nav-group-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--sidebar-text-dim); padding: 0 8px; margin-bottom: 12px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; color: var(--sidebar-text); margin-bottom: 4px; transition: all .15s ease; }
         .nav-link svg { flex-shrink: 0; opacity: .7; }
-        .nav-link:hover { background: var(--sidebar-bg-soft); color: #fff; }
+        .nav-link:hover { background: var(--dark-green); color: #fff; box-shadow: 0 4px 10px rgba(62, 88, 36, 0.4); }
         .nav-link.active { background: var(--dark-green); color: #fff; box-shadow: 0 4px 10px rgba(62, 88, 36, 0.4); }
         .nav-link.active svg { opacity: 1; color: var(--green); }
         .nav-badge { margin-left: auto; background: var(--teal); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
@@ -62,7 +62,7 @@ $activePage = 'tickets';
         .sidebar-user-name { font-size: 14px; font-weight: 600; color: #fff; }
         .sidebar-user-role { font-size: 11px; color: var(--sidebar-text-dim); }
         .logout-btn { margin-left: auto; width: 34px; height: 34px; border-radius: 10px; background: var(--sidebar-bg-soft); display: flex; align-items: center; justify-content: center; color: var(--sidebar-text); border: none; cursor: pointer; }
-        .logout-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .logout-btn:hover { background: #c41e3a; color: #fff; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 35; }
 
         .page-wrapper { flex: 1; margin-left: var(--sidebar-w); min-width: 0; display: flex; flex-direction: column; }
@@ -86,8 +86,8 @@ $activePage = 'tickets';
         .form-field-box { background: #1A1A1A; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; color: #fff; transition: border-color 0.2s; }
         .form-field-box:focus-within { border-color: var(--green); }
         .form-field-box label { font-size: 13px; color: #888; font-weight: 500; flex-shrink: 0; min-width: 120px; }
-        .form-field-box input, .form-field-box select { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; text-align: right; padding: 4px 0; }
-        .form-field-box input::placeholder { color: #555; text-align: right; }
+        .form-field-box input, .form-field-box select { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; text-align: left; padding: 4px 0; }
+        .form-field-box input::placeholder { color: #555; text-align: left; }
         .form-field-box .chevron { color: #555; margin-left: 6px; }
 
         .step-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
@@ -214,46 +214,53 @@ $activePage = 'tickets';
                             <span style="font-size:24px; margin-left:12px;">⭐</span>
                         </div>
                         
-                        <button class="btn-block btn-green" onclick="goToStep(4)">ADD ANOTHER TICKET</button>
-                        <button class="btn-block btn-dark" onclick="window.location.href='dashboard.php'">RETURN TO HOME PAGE</button>
-                    </div>
+                        <button class="btn-block btn-green" onclick="goToStep(1)">ADD ANOTHER TICKET</button>
+                    <button class="btn-block btn-dark" onclick="window.location.href='dashboard.php'">RETURN TO HOME PAGE</button>
                 </div>
+            </div>
 
-                <!-- ================= STEP 4: TICKET DETAIL / FLAG ================= -->
-                <div class="wizard-step" id="step4">
-                    <p style="font-size:16px; font-weight:600; color:#BAAC88;">Ticket #100567</p>
-                    <p style="font-size:11px; color: var(--green); margin-bottom:15px;">TICKET ENTERED 06/16/2026</p>
-                    <p class="step-sub">Select any data points to flag them for Admin to review.</p>
+            <!-- ================= STEP 4: TICKET DETAIL / FLAG ================= -->
+            <div class="wizard-step" id="step4">
+                <p style="font-size:16px; font-weight:600; color:#BAAC88;">Ticket #100567</p>
+                <p style="font-size:11px; color: var(--green); margin-bottom:15px;">TICKET ENTERED 06/16/2026</p>
+                <p class="step-sub">Select any data points to flag them for Admin to review.</p>
 
-                    <div class="form-field-box"><label>Date</label><span style="color:#888;">06/16/2026 &gt;</span></div>
-                    <div class="form-field-box"><label>Mill Ticket Number</label><span style="color:#888;">#371444 &gt;</span></div>
-                    <div class="form-field-box"><label>Mill</label><span style="color:#888;">CLW &gt;</span></div>
-                    <div class="form-field-box"><label>Truck Number</label><span style="color:#888;">TG &gt;</span></div>
-                    <div class="form-field-box"><label>Job</label><span style="color:#888;">#XXXXXX &gt;</span></div>
-                    <div class="form-field-box"><label>Contractor</label><span style="color:#888;">Jungle Badger &gt;</span></div>
-                    
-                    <div class="form-field-box" style="border: 1px solid #D43B25;">
-                        <label>Gross</label><span style="color:#888;">XXXXX &gt;</span>
-                    </div>
-                    <div class="form-field-box"><label>Tare</label><span style="color:#888;">XXXXX &gt;</span></div>
-                    <div class="form-field-box"><label>Net</label><span style="color:#888;">XXXXX &gt;</span></div>
-                    <div class="form-field-box"><label>Tons</label><span style="color:#888;">XXXXX &gt;</span></div>
-
-                    <button class="btn-block flag-btn" onclick="alert('Ticket flagged for admin review!');">FLAG FOR REVIEW</button>
+                <div class="form-field-box"><label>Date</label><span style="color:#888;">06/16/2026 &gt;</span></div>
+                <div class="form-field-box"><label>Mill Ticket Number</label><span style="color:#888;">#371444 &gt;</span></div>
+                <div class="form-field-box"><label>Mill</label><span style="color:#888;">CLW &gt;</span></div>
+                <div class="form-field-box"><label>Truck Number</label><span style="color:#888;">TG &gt;</span></div>
+                <div class="form-field-box"><label>Job</label><span style="color:#888;">#XXXXXX &gt;</span></div>
+                <div class="form-field-box"><label>Contractor</label><span style="color:#888;">Jungle Badger &gt;</span></div>
+                
+                <div class="form-field-box" style="border: 1px solid #D43B25;">
+                    <label>Gross</label><span style="color:#888;">XXXXX &gt;</span>
                 </div>
+                <div class="form-field-box"><label>Tare</label><span style="color:#888;">XXXXX &gt;</span></div>
+                <div class="form-field-box"><label>Net</label><span style="color:#888;">XXXXX &gt;</span></div>
+                <div class="form-field-box"><label>Tons</label><span style="color:#888;">XXXXX &gt;</span></div>
+
+                <button class="btn-block flag-btn" onclick="alert('Ticket flagged for admin review!');">FLAG FOR REVIEW</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarOverlay').classList.toggle('open');
-        }
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
 
-        function goToStep(stepNum) {
-            document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-            document.getElementById('step' + stepNum).classList.add('active');
+    function goToStep(step) {
+        document.querySelectorAll('.wizard-step').forEach(function (stepEl) {
+            stepEl.classList.remove('active');
+        });
+        var target = document.getElementById('step' + step);
+        if (target) {
+            target.classList.add('active');
             document.querySelector('.page-content').scrollIntoView({ behavior: 'smooth' });
         }
-    </script>
+    }
+</script>
+</body>
+</html>

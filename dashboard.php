@@ -861,7 +861,7 @@
                                                 stroke-linecap="round" /></svg></span>
                                     Create New Ticket
                                 </button>
-                                <button class="quick-action-btn" onclick="window.location.href='miles.php'">
+                                <button class="quick-action-btn" onclick="window.location.href='log-miles.php'">
                                     <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                             <path d="M4 17l4-5 3 3 4-6 5 8H4Z" stroke="currentColor" stroke-width="1.8"
                                                 stroke-linejoin="round" /></svg></span>
@@ -872,6 +872,12 @@
                                             <circle cx="9" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8" />
                                         </svg></span>
                                     Manage Drivers
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='add-mill.php'">
+                                    <span class="qi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" /></svg></span>
+                                    Add Mill
                                 </button>
                             </div>
                         </div>

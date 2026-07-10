@@ -3,14 +3,18 @@
 $__titles = [
     'dashboard.php' => 'Dashboard',
     'tickets.php'   => 'Tickets',
+    'trucks.php'    => 'Admin Trucks',
+    'add-truck.php' => 'Add a Truck',
+    'truck-detail.php' => 'Truck Detail',
     'drivers.php'   => 'Drivers',
     'miles.php'     => 'Miles & Logs',
     'reports.php'   => 'Reports',
-    'settings.php'  => 'Settings',
-];
+    'settings.php'  => 'Settings',    'add-ticket.php' => 'New Ticket',
+    'tickets-export.php' => 'Tickets - Export',];
 $__currentFile = basename($_SERVER['PHP_SELF']);
 $__pageTitle = $__titles[$__currentFile] ?? 'Dashboard';
 ?>
+<link rel="stylesheet" href="assets/css/app.css">
 <header class="topbar">
     <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">

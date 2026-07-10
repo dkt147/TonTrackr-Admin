@@ -239,10 +239,6 @@
         <div class="row-end">
             <a href="forgot-password.php">Forgot your password?</a>
         </div>
-
-        <div class="divider">Or</div>
-
-        <p class="switch-line">Don't have an account? <a href="signin.php">Sign In</a></p>
     </div>
 
     <script>
