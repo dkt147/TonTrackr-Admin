@@ -1,13 +1,13 @@
-﻿<?php
-$pageTitle = 'Tickets';
-$activePage = 'tickets';
+<?php
+$pageTitle = 'Reports';
+$activePage = 'reports';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TonTrackr · Tickets</title>
+    <title>TonTrackr · Reports</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -16,6 +16,7 @@ $activePage = 'tickets';
             --teal: #1D6960;
             --dark-green: #3E5824;
             --tan: #BAAC88;
+            --cream: #D7D2C9;
             --black: #000000;
             --sidebar-bg: #0a0a0a;
             --sidebar-bg-soft: #141414;
@@ -65,35 +66,35 @@ $activePage = 'tickets';
         .topbar-profile .name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
         .topbar-profile .role { font-size: 11px; color: #888; }
         .page-content { padding: 32px; flex: 1; }
-        .page-head { display:flex; justify-content: space-between; align-items:flex-end; gap:20px; margin-bottom:28px; flex-wrap:wrap; }
+        .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
         .page-eyebrow { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin: 0 0 4px; }
         .page-title { font-size: 32px; font-weight: 700; margin: 0; }
         .page-sub { font-size: 14px; color: #888; margin: 0; }
-        .filter-row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:22px; }
-        .search-box { flex:1; min-width:220px; position:relative; }
-        .search-box input { width:100%; padding:14px 16px 14px 42px; border-radius:999px; border:1px solid var(--border-color); background:#111; color:#fff; }
-        .search-box svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#666; }
-        .chip-group { display:flex; flex-wrap:wrap; gap:10px; }
-        .chip { padding:10px 14px; border-radius:999px; background:#111; border:1px solid var(--border-color); color:#fff; font-size:13px; cursor:pointer; }
-        .chip.active { background: var(--green); border-color: var(--green); }
-        .ticket-list { display:grid; gap:14px; margin-bottom:22px; }
-        .ticket-card { display:flex; align-items:center; justify-content:space-between; gap:18px; background:#111; border:1px solid var(--border-color); border-radius:18px; padding:18px 20px; }
-        .ticket-meta { display:flex; flex-direction:column; gap:6px; }
-        .ticket-number { font-size:18px; font-weight:700; color:#fff; }
-        .ticket-sub { font-size:13px; color:#888; }
-        .ticket-details { display:flex; gap:10px; flex-wrap:wrap; font-size:13px; color:#888; }
-        .ticket-value { font-size:18px; font-weight:700; color: var(--green); min-width:120px; text-align:right; }
-        .btn-green { background: var(--green); border:none; color:#fff; border-radius:18px; padding:14px 20px; font-weight:700; }
-        .btn-dark { background:#222; border:none; color:#fff; border-radius:18px; padding:14px 20px; font-weight:700; }
+        .reports-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; margin-top: 32px; }
+        .report-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 28px; text-align: center; cursor: pointer; transition: all .25s ease; }
+        .report-card:hover { border-color: var(--green); background: rgba(116, 170, 80, 0.08); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(116, 170, 80, 0.15); }
+        .report-icon { font-size: 48px; margin-bottom: 16px; }
+        .report-card h3 { font-size: 18px; font-weight: 700; margin: 0 0 10px; color: #fff; }
+        .report-card p { font-size: 13px; color: #888; margin: 0 0 20px; line-height: 1.5; }
+        .report-link { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 600; font-size: 13px; transition: all .2s ease; border: none; text-decoration: none; }
+        .report-link:hover { background: #5fa63d; box-shadow: 0 6px 16px rgba(116, 170, 80, 0.3); }
+        .report-link svg { width: 16px; height: 16px; }
+        .report-card.coming-soon { opacity: 0.6; }
+        .report-card.coming-soon:hover { transform: none; border-color: var(--border-color); background: var(--card-bg); box-shadow: none; }
+        .coming-soon-badge { display: inline-block; background: var(--teal); color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-top: 12px; text-transform: uppercase; }
         @media (max-width:860px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .page-wrapper { margin-left: 0; }
             .menu-toggle { display: flex; }
             .sidebar-overlay.open { display: block; }
-            .page-content { padding:24px; }
+            .page-content { padding: 24px; }
         }
-        @media (max-width:560px) { .page-head { align-items:flex-start; } .ticket-card { flex-direction:column; align-items:flex-start; } .ticket-value { width:100%; text-align:left; } }
+        @media (max-width:560px) {
+            .page-head { align-items: flex-start; }
+            .page-title { font-size: 24px; }
+            .reports-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -104,58 +105,74 @@ $activePage = 'tickets';
             <div class="page-content">
                 <div class="page-head">
                     <div>
-                        <p class="page-eyebrow">Tickets</p>
-                        <h1 class="page-title">Manage all tickets</h1>
-                        <p class="page-sub">Search and export ticket records quickly.</p>
-                    </div>
-                    <button class="btn-green" onclick="window.location.href='add-ticket.php'">+ ENTER TICKET</button>
-                </div>
-                <div class="filter-row">
-                    <div class="search-box">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.35-4.35"></path></svg>
-                        <input type="search" placeholder="Search ticket, truck, mill...">
-                    </div>
-                    <div class="chip-group">
-                        <div class="chip active">ALL</div>
-                        <div class="chip">TRUCK</div>
-                        <div class="chip">CONTRACTOR</div>
-                        <div class="chip">DATE</div>
+                        <p class="page-eyebrow">Reports</p>
+                        <h1 class="page-title">Reports & Statements</h1>
+                        <p class="page-sub">View detailed reports on fleet mileage, driver logs, tickets, and contractor payments.</p>
                     </div>
                 </div>
-                <div class="ticket-list">
-                    <div class="ticket-card">
-                        <div class="ticket-meta">
-                            <span class="ticket-number">330</span>
-                            <div class="ticket-details"><span>05/14/26</span><span>IFG Grangeville</span></div>
-                        </div>
-                        <div class="ticket-value">$866.18</div>
+
+                <div class="reports-grid">
+                    <div class="report-card" onclick="window.location.href='report-fleet-mileage.php'">
+                        <div class="report-icon">📊</div>
+                        <h3>Fleet Mileage Summary</h3>
+                        <p>View fleet-wide mileage data by truck and state jurisdiction with IFTA breakdown.</p>
+                        <a href="report-fleet-mileage.php" class="report-link">
+                            <span>View Report</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
                     </div>
-                    <div class="ticket-card">
-                        <div class="ticket-meta">
-                            <span class="ticket-number">1450</span>
-                            <div class="ticket-details"><span>05/13/26</span><span>Run Of The Mill</span></div>
-                        </div>
-                        <div class="ticket-value">$1,292.60</div>
+
+                    <div class="report-card" onclick="window.location.href='report-quarterly-mileage.php'">
+                        <div class="report-icon">📈</div>
+                        <h3>Quarterly Mileage Summary</h3>
+                        <p>Detailed quarterly breakdown of mileage by date, state, and driver performance.</p>
+                        <a href="report-quarterly-mileage.php" class="report-link">
+                            <span>View Report</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
                     </div>
-                    <div class="ticket-card">
-                        <div class="ticket-meta">
-                            <span class="ticket-number">330</span>
-                            <div class="ticket-details"><span>05/13/26</span><span>Jungle Badger</span></div>
-                        </div>
-                        <div class="ticket-value">$22,110.90</div>
+
+                    <div class="report-card" onclick="window.location.href='tickets-export-admin.php'">
+                        <div class="report-icon">🎟️</div>
+                        <h3>Contractor Statement</h3>
+                        <p>View ticket exports and payment statements for contractors.</p>
+                        <a href="tickets-export-admin.php" class="report-link">
+                            <span>View Report</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
                     </div>
-                    <div class="ticket-card">
-                        <div class="ticket-meta">
-                            <span class="ticket-number">110</span>
-                            <div class="ticket-details"><span>05/14/26</span><span>Jungle Badger</span></div>
-                        </div>
-                        <div class="ticket-value">$680.15</div>
+
+                    <div class="report-card" onclick="window.location.href='tickets-export-driver.php'">
+                        <div class="report-icon">👤</div>
+                        <h3>Driver Statement</h3>
+                        <p>Track driver commissions and ticket-by-ticket earnings.</p>
+                        <a href="tickets-export-driver.php" class="report-link">
+                            <span>View Report</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+
+                    <div class="report-card" onclick="window.location.href='tickets-export-fleet-admin.php'">
+                        <div class="report-icon">🚚</div>
+                        <h3>Fleet Contractor Statement</h3>
+                        <p>Complete fleet ticket summary and consolidated payment statements.</p>
+                        <a href="tickets-export-fleet-admin.php" class="report-link">
+                            <span>View Report</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+
+                    <div class="report-card coming-soon">
+                        <div class="report-icon">📋</div>
+                        <h3>Driver Performance Report</h3>
+                        <p>Analyze individual driver performance metrics and efficiency scores.</p>
+                        <div class="coming-soon-badge">Coming Soon</div>
                     </div>
                 </div>
-                <button class="btn-dark" style="width:100%;" onclick="window.location.href='tickets-export.php'">EXPORT</button>
             </div>
         </div>
     </div>
+
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');

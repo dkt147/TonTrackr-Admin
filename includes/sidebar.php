@@ -75,6 +75,13 @@ function navActive($file, $current){ return $file === $current ? 'active' : ''; 
         </svg>
         Contractors
       </a>
+      <a href="reports.php" class="nav-link <?php echo navActive('reports.php', $__currentFile); ?>">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M9 3H5a2 2 0 0 0-2 2v4m0 0H3m2 0v4M3 9h18M3 9h18v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="M9 13h6M9 17h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Reports
+      </a>
     </div>
 
     <div class="nav-group">
@@ -85,13 +92,6 @@ function navActive($file, $current){ return $file === $current ? 'active' : ''; 
           <path d="M12 6v12M9 9h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         </svg>
         Subscriptions
-      </a>
-      <a href="reports.php" class="nav-link <?php echo navActive('reports.php', $__currentFile); ?>">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M21 12v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6M15 15l4-4M15 15h-4M15 15l4-4"
-            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        Reports
       </a>
       <a href="settings.php" class="nav-link <?php echo navActive('settings.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
