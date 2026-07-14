@@ -573,7 +573,7 @@ require_once 'config.php';
         }
     </script>
     <script>
-        window.API_URL = < ? php echo json_encode($API_URL, JSON_HEX_TAG); ? > ;
+        window.API_URL = <?php echo json_encode($API_URL, JSON_HEX_TAG); ?>;
     </script>
     <script src="assets/js/auth.js?v=4"></script>
     <script>
@@ -618,8 +618,8 @@ require_once 'config.php';
             renderMessage('');
             try {
                 const data = await fetchWithAuth(`${window.API_URL}/earnings`);
-                const items = data ? .earnings || [];
-                const totals = data ? .totals || {};
+                const items = (data && data.earnings) || [];
+                const totals = (data && data.totals) || {};
                 document.getElementById('summaryAdmin').textContent = formatCurrency(totals.admin_earning);
                 document.getElementById('summaryDriver').textContent = formatCurrency(totals.driver_earning);
                 document.getElementById('summaryPaid').textContent = formatCurrency(totals.paid);
