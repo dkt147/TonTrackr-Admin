@@ -1,6 +1,8 @@
 <?php
+require_once 'config.php';
 $pageTitle  = 'Add Job';
 $activePage = 'jobs';
+$jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,8 +27,8 @@ $activePage = 'jobs';
                         <button class="btn-pill small" type="button" onclick="location.href='jobs.php'">← BACK</button>
                         <div>
                             <p class="page-eyebrow">Jobs</p>
-                            <h1 class="page-title">Add a New Job</h1>
-                            <p class="page-sub" style="margin-top:6px">Create a new job assignment for your fleet.</p>
+                            <h1 class="page-title" id="pageTitle">Add a New Job</h1>
+                            <p class="page-sub" id="pageSubtitle" style="margin-top:6px">Create a new job assignment for your fleet.</p>
                         </div>
                     </div>
                 </div>
@@ -38,55 +40,19 @@ $activePage = 'jobs';
                     <div class="form-field-box"><input type="text" id="job_title" placeholder="Job Title"></div>
                     <div class="form-field-box"><input type="text" id="job_description" placeholder="Job Description"></div>
 
-                    <div class="section-title" style="margin-top:28px">Contractor & Location</div>
-                    <p class="section-sub">Select contractor and specify pickup/delivery locations.</p>
+                    <div class="section-title" style="margin-top:28px">Contractor Details</div>
+                    <p class="section-sub">Enter the contractor ID from the API payload and the contractor details for the request.</p>
 
                     <div class="form-field-box"><select id="contractor">
-                        <option value="">Select Contractor</option>
-                        <option value="johntimber">John's Timber</option>
-                        <option value="mountain">Mountain Lumber</option>
-                        <option value="crown">Crown Wood Works</option>
+                        <option value="">Select Preset Contractor</option>
+                        <option value="John's Timber">John's Timber</option>
+                        <option value="Mountain Lumber">Mountain Lumber</option>
+                        <option value="Crown Wood Works">Crown Wood Works</option>
                     </select></div>
-
-                    <div class="form-field-box"><input type="text" id="pickup_location" placeholder="Pickup Location"></div>
-                    <div class="form-field-box"><input type="text" id="delivery_location" placeholder="Delivery Location"></div>
-
-                    <div class="section-title" style="margin-top:28px">Load Details</div>
-                    <p class="section-sub">Specify load type and weight.</p>
-
-                    <div class="form-field-box"><select id="load_type">
-                        <option value="">Select Load Type</option>
-                        <option value="long">Long Log</option>
-                        <option value="short">Short Log</option>
-                        <option value="super">Super Train</option>
-                        <option value="mixed">Mixed</option>
-                    </select></div>
-
-                    <div class="form-field-box"><input type="number" id="weight" placeholder="Weight (tons)"></div>
-
-                    <div class="section-title" style="margin-top:28px">Assignment</div>
-                    <p class="section-sub">Assign a driver and truck to this job.</p>
-
-                    <div class="form-field-box"><select id="driver">
-                        <option value="">Select Driver</option>
-                        <option value="kaylee">Kaylee K.</option>
-                        <option value="jake">Jake M.</option>
-                        <option value="travis">Travis B.</option>
-                        <option value="unassigned">Unassigned</option>
-                    </select></div>
-
-                    <div class="form-field-box"><select id="truck">
-                        <option value="">Select Truck</option>
-                        <option value="truck1">Truck #1 - Long Log</option>
-                        <option value="truck2">Truck #2 - Short Log</option>
-                        <option value="truck3">Truck #3 - Super Train</option>
-                    </select></div>
-
-                    <div class="section-title" style="margin-top:28px">Dates</div>
-                    <p class="section-sub">Set start and end dates for the job.</p>
-
-                    <div class="form-field-box"><input type="date" id="start_date" placeholder="Start Date"></div>
-                    <div class="form-field-box"><input type="date" id="end_date" placeholder="End Date"></div>
+                    <div class="form-field-box"><input type="text" id="contractor_id" placeholder="Contractor ID (required by API)"></div>
+                    <div class="form-field-box"><input type="text" id="contractor_name" placeholder="Contractor Name"></div>
+                    <div class="form-field-box"><input type="email" id="contractor_email" placeholder="Contractor Email"></div>
+                    <div class="form-field-box"><input type="text" id="mill_rates" placeholder="Mill rates (comma separated, e.g. 7.5, 8.25)"></div>
 
                     <div class="section-title" style="margin-top:28px">Status</div>
                     <p class="section-sub">Set the initial job status.</p>
@@ -99,8 +65,8 @@ $activePage = 'jobs';
                     </select></div>
 
                     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:28px">
-                        <button class="btn-pill small" onclick="location.href='jobs.php'">Cancel</button>
-                        <button class="btn-pill primary" onclick="submitJob()">Save Job</button>
+                        <button class="btn-pill small" type="button" onclick="location.href='jobs.php'">Cancel</button>
+                        <button class="btn-pill primary" id="saveJobBtn" type="button" onclick="submitJob()">Save Job</button>
                     </div>
                 </div>
             </div>
@@ -205,23 +171,106 @@ $activePage = 'jobs';
     </style>
 
     <script>
+        window.API_URL = <?php echo json_encode($API_URL, JSON_HEX_TAG); ?>;
+    </script>
+    <script src="assets/js/auth.js"></script>
+    <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
         }
 
-        function submitJob() {
-            const jobTitle = document.getElementById('job_title').value;
-            const contractor = document.getElementById('contractor').value;
+        const editJobId = <?php echo json_encode($jobId); ?>;
+        const isEditing = Boolean(editJobId);
 
-            if (!jobTitle || !contractor) {
-                alert('Please fill in all required fields');
+        function parseMillRates(value) {
+            if (!value) return [];
+            return String(value)
+                .split(',')
+                .map((item) => item.trim())
+                .filter(Boolean)
+                .map((item) => Number(item))
+                .filter((item) => !Number.isNaN(item));
+        }
+
+        function getSelectedContractorName() {
+            const customName = document.getElementById('contractor_name').value.trim();
+            if (customName) {
+                return customName;
+            }
+            return document.getElementById('contractor').value.trim();
+        }
+
+        async function loadJobForEdit() {
+            if (!isEditing) {
                 return;
             }
 
-            alert('Job saved successfully!');
-            location.href = 'jobs.php';
+            document.getElementById('pageTitle').textContent = 'Edit Job';
+            document.getElementById('pageSubtitle').textContent = 'Update the selected job details.';
+            document.getElementById('saveJobBtn').textContent = 'Update Job';
+
+            try {
+                const job = await fetchWithAuth(`${window.API_URL}/jobs/${editJobId}`, { method: 'GET' });
+                document.getElementById('job_title').value = job.job_name || job.name || '';
+                document.getElementById('job_description').value = job.description || '';
+                document.getElementById('contractor').value = job.contractor_id || '';
+                document.getElementById('contractor_name').value = job.contractor_name || '';
+                document.getElementById('contractor_email').value = job.contractor_email || '';
+                document.getElementById('mill_rates').value = Array.isArray(job.mill_rates)
+                    ? job.mill_rates.join(', ')
+                    : (job.mill_rates || '');
+                document.getElementById('status').value = String(job.status || 'pending').toLowerCase();
+            } catch (error) {
+                console.error(error);
+                alert(error.message || 'Unable to load job details.');
+            }
         }
+
+        async function submitJob() {
+            const jobTitle = document.getElementById('job_title').value.trim();
+            const contractorName = getSelectedContractorName();
+            const contractorEmail = document.getElementById('contractor_email').value.trim();
+            const contractorId = document.getElementById('contractor_id').value.trim() || document.getElementById('contractor').value.trim();
+            const status = document.getElementById('status').value;
+            const millRates = parseMillRates(document.getElementById('mill_rates').value);
+
+            if (!jobTitle || !contractorName || !contractorId) {
+                alert('Please enter a job name, contractor name, and contractor ID.');
+                return;
+            }
+
+            const payload = {
+                contractor_email: contractorEmail,
+                contractor_id: contractorId,
+                contractor_name: contractorName,
+                job_name: jobTitle,
+                mill_rates: millRates
+            };
+
+            try {
+                const url = isEditing ? `${window.API_URL}/jobs/${editJobId}` : `${window.API_URL}/jobs`;
+                const method = isEditing ? 'PUT' : 'POST';
+                console.log("Payload:", payload);
+console.log("mill_rates:", payload.mill_rates);
+console.log("Type:", typeof payload.mill_rates);
+                await fetchWithAuth(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                alert(isEditing ? 'Job updated successfully.' : 'Job created successfully.');
+                location.href = 'jobs.php';
+            } catch (error) {
+                console.error(error);
+                alert(error.message || 'Unable to save job.');
+            }
+        }
+
+        loadJobForEdit();
     </script>
 </body>
 </html>

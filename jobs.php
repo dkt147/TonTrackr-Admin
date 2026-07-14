@@ -1,4 +1,5 @@
 <?php
+require_once 'config.php';
 $pageTitle  = 'Jobs';
 $activePage = 'jobs';
 ?>
@@ -128,6 +129,7 @@ $activePage = 'jobs';
         .job-info-row {
             display: flex;
             justify-content: space-between;
+            gap: 12px;
         }
 
         .job-info-label {
@@ -137,6 +139,7 @@ $activePage = 'jobs';
         .job-info-value {
             color: #fff;
             font-weight: 500;
+            text-align: right;
         }
 
         .job-progress {
@@ -202,6 +205,15 @@ $activePage = 'jobs';
             background: #333;
         }
 
+        .btn-danger {
+            background: #4f1f1f;
+            color: #ffb4b4;
+        }
+
+        .btn-danger:hover {
+            background: #6a2b2b;
+        }
+
         .add-btn-primary {
             background: var(--green);
             color: #000;
@@ -218,6 +230,16 @@ $activePage = 'jobs';
         .add-btn-primary:hover {
             opacity: 0.9;
             transform: scale(1.02);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            background: #111111;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            color: #888;
+            text-align: center;
         }
     </style>
 </head>
@@ -240,114 +262,8 @@ $activePage = 'jobs';
                     <button class="add-btn-primary" onclick="location.href='add-job.php'">+ ADD JOB</button>
                 </div>
 
-                <div class="jobs-grid">
-                    <!-- Job Card 1 -->
-                    <div class="job-card">
-                        <div class="job-header">
-                            <h3 class="job-title">Snoqualmie Mill Haul</h3>
-                            <span class="job-status status-active">Active</span>
-                        </div>
-                        <div class="job-id">Job ID: JOB-001</div>
-                        <div class="job-info">
-                            <div class="job-info-row">
-                                <span class="job-info-label">Contractor:</span>
-                                <span class="job-info-value">John's Timber</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-label">Driver:</span>
-                                <span class="job-info-value">Kaylee K.</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-label">Load:</span>
-                                <span class="job-info-value">Long Log - 45 tons</span>
-                            </div>
-                        </div>
-                        <div class="job-progress">
-                            <div class="progress-label">
-                                <span>Progress</span>
-                                <span>75%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 75%"></div>
-                            </div>
-                        </div>
-                        <div class="job-actions">
-                            <button class="btn-view" onclick="location.href='job-detail.php?id=1'">View Job</button>
-                            <button class="btn-edit" onclick="location.href='add-job.php?id=1'">Edit</button>
-                        </div>
-                    </div>
-
-                    <!-- Job Card 2 -->
-                    <div class="job-card">
-                        <div class="job-header">
-                            <h3 class="job-title">North Bend Transport</h3>
-                            <span class="job-status status-active">Active</span>
-                        </div>
-                        <div class="job-id">Job ID: JOB-002</div>
-                        <div class="job-info">
-                            <div class="job-info-row">
-                                <span class="job-info-label">Contractor:</span>
-                                <span class="job-info-value">Mountain Lumber</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-label">Driver:</span>
-                                <span class="job-info-value">Jake M.</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-label">Load:</span>
-                                <span class="job-info-value">Short Log - 38 tons</span>
-                            </div>
-                        </div>
-                        <div class="job-progress">
-                            <div class="progress-label">
-                                <span>Progress</span>
-                                <span>50%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 50%"></div>
-                            </div>
-                        </div>
-                        <div class="job-actions">
-                            <button class="btn-view" onclick="location.href='job-detail.php?id=2'">View Job</button>
-                            <button class="btn-edit" onclick="location.href='add-job.php?id=2'">Edit</button>
-                        </div>
-                    </div>
-
-                    <!-- Job Card 3 -->
-                    <div class="job-card">
-                        <div class="job-header">
-                            <h3 class="job-title">Issaquah Delivery</h3>
-                            <span class="job-status status-pending">Pending</span>
-                        </div>
-                        <div class="job-id">Job ID: JOB-003</div>
-                        <div class="job-info">
-                            <div class="job-info-row">
-                                <span class="job-info-label">Contractor:</span>
-                                <span class="job-info-value">Crown Wood Works</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-label">Driver:</span>
-                                <span class="job-info-value">Unassigned</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-label">Load:</span>
-                                <span class="job-info-value">Mixed - 42 tons</span>
-                            </div>
-                        </div>
-                        <div class="job-progress">
-                            <div class="progress-label">
-                                <span>Progress</span>
-                                <span>0%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="job-actions">
-                            <button class="btn-view" onclick="location.href='job-detail.php?id=3'">View Job</button>
-                            <button class="btn-edit" onclick="location.href='add-job.php?id=3'">Edit</button>
-                        </div>
-                    </div>
+                <div id="jobsGrid" class="jobs-grid">
+                    <div class="empty-state">Loading jobs...</div>
                 </div>
 
             </div>
@@ -355,10 +271,120 @@ $activePage = 'jobs';
     </div>
 
     <script>
+        window.API_URL = <?php echo json_encode($API_URL, JSON_HEX_TAG); ?>;
+    </script>
+    <script src="assets/js/auth.js"></script>
+    <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
         }
+
+        const jobsGrid = document.getElementById('jobsGrid');
+
+        function getJobId(job) {
+            return job.id || job.job_id || job._id || null;
+        }
+
+        function formatStatus(status) {
+            const value = String(status || 'pending').toLowerCase();
+            if (value === 'active') return 'Active';
+            if (value === 'completed') return 'Completed';
+            return 'Pending';
+        }
+
+        function getStatusClass(status) {
+            const value = String(status || 'pending').toLowerCase();
+            if (value === 'active') return 'status-active';
+            if (value === 'completed') return 'status-completed';
+            return 'status-pending';
+        }
+
+        function renderJobs(jobs) {
+            if (!jobs.length) {
+                jobsGrid.innerHTML = '<div class="empty-state">No jobs found yet.</div>';
+                return;
+            }
+
+            jobsGrid.innerHTML = jobs.map((job) => {
+                const id = getJobId(job) || 'new';
+                const name = job.job_name || job.name || `Job ${id}`;
+                const contractor = job.contractor_name || 'Unassigned';
+                const status = formatStatus(job.status);
+                const statusClass = getStatusClass(job.status);
+                const millRates = Array.isArray(job.mill_rates)
+                    ? job.mill_rates.join(', ')
+                    : (job.mill_rates ? String(job.mill_rates) : 'Not set');
+                const progress = Math.max(0, Math.min(100, Number(job.progress) || 0));
+
+                return `
+                    <div class="job-card">
+                        <div class="job-header">
+                            <h3 class="job-title">${name}</h3>
+                            <span class="job-status ${statusClass}">${status}</span>
+                        </div>
+                        <div class="job-id">Job ID: ${id}</div>
+                        <div class="job-info">
+                            <div class="job-info-row">
+                                <span class="job-info-label">Contractor:</span>
+                                <span class="job-info-value">${contractor}</span>
+                            </div>
+                            <div class="job-info-row">
+                                <span class="job-info-label">Mill Rates:</span>
+                                <span class="job-info-value">${millRates}</span>
+                            </div>
+                            <div class="job-info-row">
+                                <span class="job-info-label">Status:</span>
+                                <span class="job-info-value">${status}</span>
+                            </div>
+                        </div>
+                        <div class="job-progress">
+                            <div class="progress-label">
+                                <span>Progress</span>
+                                <span>${progress}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        <div class="job-actions">
+                            <button class="btn-view" onclick="location.href='job-detail.php?id=${id}'">View</button>
+                            <button class="btn-edit" onclick="location.href='add-job.php?id=${id}'">Edit</button>
+                            <button class="btn-danger" onclick="deleteJob('${id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadJobs() {
+            jobsGrid.innerHTML = '<div class="empty-state">Loading jobs...</div>';
+
+            try {
+                const payload = await fetchWithAuth(`${window.API_URL}/jobs`, { method: 'GET' });
+                const jobs = Array.isArray(payload) ? payload : (payload && payload.jobs ? payload.jobs : []);
+                renderJobs(jobs);
+            } catch (error) {
+                console.error(error);
+                jobsGrid.innerHTML = '<div class="empty-state">Unable to load jobs right now.</div>';
+            }
+        }
+
+        async function deleteJob(jobId) {
+            if (!jobId || !confirm('Delete this job?')) {
+                return;
+            }
+
+            try {
+                await fetchWithAuth(`${window.API_URL}/jobs/${jobId}`, { method: 'DELETE' });
+                loadJobs();
+            } catch (error) {
+                console.error(error);
+                alert(error.message || 'Unable to delete job.');
+            }
+        }
+
+        loadJobs();
     </script>
 </body>
 </html>

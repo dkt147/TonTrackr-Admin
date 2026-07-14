@@ -9,6 +9,7 @@ $__titles = [
     'drivers.php'   => 'Drivers',
     'miles.php'     => 'Miles & Logs',
     'reports.php'   => 'Reports',
+    'earnings.php'  => 'Earnings',
     'settings.php'  => 'Settings',    'add-ticket.php' => 'New Ticket',
     'tickets-export.php' => 'Tickets - Export',];
 $__currentFile = basename($_SERVER['PHP_SELF']);

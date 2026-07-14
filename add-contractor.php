@@ -1,6 +1,9 @@
 <?php
-$pageTitle  = 'Add Contractor';
+$pageTitle  = 'Contractors';
 $activePage = 'contractors';
+include 'config.php';
+$contractorId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
+$isEdit = !empty($contractorId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,8 +28,8 @@ $activePage = 'contractors';
                         <button class="btn-pill small" type="button" onclick="location.href='contractors.php'">← BACK</button>
                         <div>
                             <p class="page-eyebrow">Contractors</p>
-                            <h1 class="page-title">Add a Contractor</h1>
-                            <p class="page-sub" style="margin-top:6px">Add contractor or supplier information.</p>
+                            <h1 class="page-title"><?php echo $isEdit ? 'Edit Contractor' : 'Add a Contractor'; ?></h1>
+                            <p class="page-sub" style="margin-top:6px"><?php echo $isEdit ? 'Update contractor information.' : 'Add contractor or supplier information.'; ?></p>
                         </div>
                     </div>
                 </div>
@@ -72,7 +75,7 @@ $activePage = 'contractors';
 
                     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:28px">
                         <button class="btn-pill small" onclick="location.href='contractors.php'">Cancel</button>
-                        <button class="btn-pill primary" onclick="submitContractor()">Save Contractor</button>
+                        <button class="btn-pill primary" onclick="submitContractor()"><?php echo $isEdit ? 'Save Changes' : 'Save Contractor'; ?></button>
                     </div>
                 </div>
             </div>
@@ -177,23 +180,97 @@ $activePage = 'contractors';
     </style>
 
     <script>
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+        window.CONTRACTOR_ID = '<?php echo addslashes($contractorId); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
         }
 
-        function submitContractor() {
-            const companyName = document.getElementById('company_name').value;
-            const contactPerson = document.getElementById('contact_person').value;
+        function getValue(id) {
+            return document.getElementById(id).value.trim();
+        }
 
-            if (!companyName || !contactPerson) {
-                alert('Please fill in all required fields');
+        function setValue(id, value) {
+            const element = document.getElementById(id);
+            if (!element) return;
+            element.value = value || '';
+        }
+
+        function getPayload() {
+            return {
+                company_name: getValue('company_name'),
+                contractor_type: getValue('contractor_type'),
+                business_license: getValue('business_license'),
+                contact_person: getValue('contact_person'),
+                contact_email: getValue('contact_email'),
+                contact_phone: getValue('contact_phone'),
+                address: getValue('address'),
+                city: getValue('city'),
+                state: getValue('state'),
+                zip: getValue('zip'),
+                status: getValue('status')
+            };
+        }
+
+        async function loadContractor() {
+            if (!window.CONTRACTOR_ID) return;
+
+            try {
+                await requireAuthOrRedirect('login.php');
+                const contractor = await fetchWithAuth(`${window.API_URL}/contractors/${window.CONTRACTOR_ID}`);
+
+                setValue('company_name', contractor.company_name);
+                setValue('contractor_type', contractor.contractor_type);
+                setValue('business_license', contractor.business_license);
+                setValue('contact_person', contractor.contact_person);
+                setValue('contact_email', contractor.contact_email);
+                setValue('contact_phone', contractor.contact_phone);
+                setValue('address', contractor.address);
+                setValue('city', contractor.city);
+                setValue('state', contractor.state);
+                setValue('zip', contractor.zip);
+                setValue('status', contractor.status);
+            } catch (error) {
+                console.error('Failed to load contractor:', error);
+                alert('Unable to load contractor details. Returning to list.');
+                window.location.href = 'contractors.php';
+            }
+        }
+
+        async function submitContractor() {
+            const payload = getPayload();
+
+            if (!payload.company_name || !payload.contractor_type || !payload.contact_person || !payload.contact_email || !payload.status) {
+                alert('Please fill in required fields: company name, contractor type, contact person, email, and status.');
                 return;
             }
 
-            alert('Contractor saved successfully!');
-            location.href = 'contractors.php';
+            try {
+                await requireAuthOrRedirect('login.php');
+                const method = window.CONTRACTOR_ID ? 'PUT' : 'POST';
+                const url = window.CONTRACTOR_ID ? `${window.API_URL}/contractors/${window.CONTRACTOR_ID}` : `${window.API_URL}/contractors`;
+                const response = await fetchWithAuth(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const action = window.CONTRACTOR_ID ? 'updated' : 'created';
+                alert(`Contractor ${action} successfully. ID: ${response.contractor_id}`);
+                window.location.href = 'contractors.php';
+            } catch (error) {
+                console.error('Save contractor failed:', error);
+                alert('Unable to save contractor. Please try again.');
+            }
         }
+
+        document.addEventListener('DOMContentLoaded', loadContractor);
     </script>
 </body>
 </html>

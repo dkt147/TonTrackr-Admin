@@ -1,3 +1,4 @@
+<?php include 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -704,8 +705,8 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="stat-value">$842</div>
-                        <div class="stat-label">Today's Revenue</div>
+                        <div class="stat-value" id="statRevenue">$0</div>
+                        <div class="stat-label">Total Revenue</div>
                     </div>
 
                     <div class="stat-card">
@@ -718,8 +719,8 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="stat-value">$3.2K</div>
-                        <div class="stat-label">This Week</div>
+                        <div class="stat-value" id="statAdminProfit">$0</div>
+                        <div class="stat-label">Admin Profit</div>
                     </div>
 
                     <div class="stat-card">
@@ -732,8 +733,8 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="stat-value">$6.1K</div>
-                        <div class="stat-label">Bi-Weekly</div>
+                        <div class="stat-value" id="statTotalPayouts">$0</div>
+                        <div class="stat-label">Total Payouts</div>
                     </div>
 
                     <div class="stat-card">
@@ -746,8 +747,64 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="stat-value">1,240</div>
-                        <div class="stat-label">Total Miles</div>
+                        <div class="stat-value" id="statPendingPayouts">$0</div>
+                        <div class="stat-label">Pending Payouts</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statActiveTasks">0</div>
+                        <div class="stat-label">Active Tasks</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statPendingTasks">0</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statMillCount">0</div>
+                        <div class="stat-label">Mills</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statDriverCount">0</div>
+                        <div class="stat-label">Drivers</div>
                     </div>
                 </div>
 
@@ -916,6 +973,30 @@
                 this.style.opacity = '0.7';
             });
         });
+    </script>
+
+    <script>
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
+        async function loadDashboardStats() {
+            try {
+                const stats = await fetchWithAuth(`${window.API_URL}/dashboard/stats`);
+                document.getElementById('statRevenue').textContent = `$${stats.total_revenue.toFixed(2)}`;
+                document.getElementById('statAdminProfit').textContent = `$${stats.admin_profit.toFixed(2)}`;
+                document.getElementById('statTotalPayouts').textContent = `$${stats.total_payouts.toFixed(2)}`;
+                document.getElementById('statPendingPayouts').textContent = `$${stats.pending_payouts.toFixed(2)}`;
+                document.getElementById('statActiveTasks').textContent = stats.active_tasks.toString();
+                document.getElementById('statPendingTasks').textContent = stats.pending_tasks.toString();
+                document.getElementById('statDriverCount').textContent = stats.driver_count.toString();
+                document.getElementById('statMillCount').textContent = stats.mill_count.toString();
+            } catch (error) {
+                console.error('Dashboard stats failed:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboardStats);
     </script>
 </body>
 

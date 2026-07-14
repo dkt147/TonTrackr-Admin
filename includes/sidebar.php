@@ -82,6 +82,13 @@ function navActive($file, $current){ return $file === $current ? 'active' : ''; 
         </svg>
         Reports
       </a>
+      <a href="earnings.php" class="nav-link <?php echo navActive('earnings.php', $__currentFile); ?>">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M5 5l14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        Earnings
+      </a>
     </div>
 
     <div class="nav-group">

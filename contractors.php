@@ -1,6 +1,7 @@
 <?php
 $pageTitle  = 'Contractors';
 $activePage = 'contractors';
+include 'config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -157,6 +158,15 @@ $activePage = 'contractors';
             background: #333;
         }
 
+        .btn-delete {
+            background: #6f2020;
+            color: #fff;
+        }
+
+        .btn-delete:hover {
+            background: #8f3030;
+        }
+
         .add-btn-primary {
             background: var(--green);
             color: #000;
@@ -195,81 +205,8 @@ $activePage = 'contractors';
                     <button class="add-btn-primary" onclick="location.href='add-contractor.php'">+ ADD CONTRACTOR</button>
                 </div>
 
-                <div class="contractors-grid">
-                    <!-- Contractor Card 1 -->
-                    <div class="contractor-card">
-                        <div class="contractor-avatar">JP</div>
-                        <div class="contractor-name">John's Timber</div>
-                        <div class="contractor-type">Mill Owner</div>
-                        <div class="contractor-info">
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Status:</span>
-                                <span class="contractor-info-value" style="color: var(--green);">Active</span>
-                            </div>
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Location:</span>
-                                <span class="contractor-info-value">Snoqualmie, WA</span>
-                            </div>
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Contact:</span>
-                                <span class="contractor-info-value">(206) 555-0126</span>
-                            </div>
-                        </div>
-                        <div class="contractor-actions">
-                            <button class="btn-view" onclick="location.href='contractor-detail.php?id=1'">View Details</button>
-                            <button class="btn-edit" onclick="location.href='add-contractor.php?id=1'">Edit</button>
-                        </div>
-                    </div>
-
-                    <!-- Contractor Card 2 -->
-                    <div class="contractor-card">
-                        <div class="contractor-avatar">ML</div>
-                        <div class="contractor-name">Mountain Lumber</div>
-                        <div class="contractor-type">Supplier</div>
-                        <div class="contractor-info">
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Status:</span>
-                                <span class="contractor-info-value" style="color: var(--green);">Active</span>
-                            </div>
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Location:</span>
-                                <span class="contractor-info-value">North Bend, WA</span>
-                            </div>
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Contact:</span>
-                                <span class="contractor-info-value">(206) 555-0127</span>
-                            </div>
-                        </div>
-                        <div class="contractor-actions">
-                            <button class="btn-view" onclick="location.href='contractor-detail.php?id=2'">View Details</button>
-                            <button class="btn-edit" onclick="location.href='add-contractor.php?id=2'">Edit</button>
-                        </div>
-                    </div>
-
-                    <!-- Contractor Card 3 -->
-                    <div class="contractor-card">
-                        <div class="contractor-avatar">CW</div>
-                        <div class="contractor-name">Crown Wood Works</div>
-                        <div class="contractor-type">Mill Owner</div>
-                        <div class="contractor-info">
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Status:</span>
-                                <span class="contractor-info-value" style="color: #FFB800;">Pending</span>
-                            </div>
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Location:</span>
-                                <span class="contractor-info-value">Issaquah, WA</span>
-                            </div>
-                            <div class="contractor-info-row">
-                                <span class="contractor-info-label">Contact:</span>
-                                <span class="contractor-info-value">(206) 555-0128</span>
-                            </div>
-                        </div>
-                        <div class="contractor-actions">
-                            <button class="btn-view" onclick="location.href='contractor-detail.php?id=3'">View Details</button>
-                            <button class="btn-edit" onclick="location.href='add-contractor.php?id=3'">Edit</button>
-                        </div>
-                    </div>
+                <div class="contractors-grid" id="contractorsGrid">
+                    <div class="loading-note" style="color:#ddd;">Loading contractors...</div>
                 </div>
 
             </div>
@@ -277,10 +214,107 @@ $activePage = 'contractors';
     </div>
 
     <script>
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
         }
+
+        function getInitials(value) {
+            if (!value) return '??';
+            return value
+                .split(' ')
+                .map(part => part[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+        }
+
+        function getStatusColor(status) {
+            if (!status) return '#888';
+            if (status.toLowerCase() === 'active') return 'var(--green)';
+            if (status.toLowerCase() === 'inactive') return '#888';
+            if (status.toLowerCase() === 'pending') return '#FFB800';
+            return '#888';
+        }
+
+        function renderContractorCard(contractor) {
+            const initials = getInitials(contractor.company_name || contractor.contact_person || 'CC');
+            const statusColor = getStatusColor(contractor.status);
+            const location = [contractor.city, contractor.state].filter(Boolean).join(', ') || 'Unknown';
+            const contact = contractor.contact_phone || contractor.contact_email || 'No contact';
+            const type = contractor.contractor_type ? contractor.contractor_type.replace('_', ' ') : 'Contractor';
+            const id = contractor.id || '';
+
+            return `
+                <div class="contractor-card">
+                    <div class="contractor-avatar">${initials}</div>
+                    <div class="contractor-name">${contractor.company_name || 'Unnamed Contractor'}</div>
+                    <div class="contractor-type">${type}</div>
+                    <div class="contractor-info">
+                        <div class="contractor-info-row">
+                            <span class="contractor-info-label">Status:</span>
+                            <span class="contractor-info-value" style="color: ${statusColor};">${contractor.status || 'Unknown'}</span>
+                        </div>
+                        <div class="contractor-info-row">
+                            <span class="contractor-info-label">Location:</span>
+                            <span class="contractor-info-value">${location}</span>
+                        </div>
+                        <div class="contractor-info-row">
+                            <span class="contractor-info-label">Contact:</span>
+                            <span class="contractor-info-value">${contact}</span>
+                        </div>
+                    </div>
+                    <div class="contractor-actions">
+                        <button class="btn-view" onclick="location.href='contractor-detail.php?id=${encodeURIComponent(id)}'">View Details</button>
+                        <button class="btn-edit" onclick="location.href='add-contractor.php?id=${encodeURIComponent(id)}'">Edit</button>
+                        <button class="btn-delete" onclick="deleteContractor('${id}')">Delete</button>
+                    </div>
+                </div>`;
+        }
+
+        async function deleteContractor(id) {
+            if (!confirm('Delete this contractor?')) {
+                return;
+            }
+
+            const grid = document.getElementById('contractorsGrid');
+            try {
+                await requireAuthOrRedirect('login.php');
+                await fetchWithAuth(`${window.API_URL}/contractors/${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                });
+                alert('Contractor deleted.');
+                loadContractors();
+            } catch (err) {
+                console.error('Delete contractor failed:', err);
+                grid.innerHTML = '<div class="loading-note" style="color:#f5f5f5;">Unable to delete contractor. Please refresh.</div>';
+            }
+        }
+
+        async function loadContractors() {
+            const grid = document.getElementById('contractorsGrid');
+            try {
+                await requireAuthOrRedirect('login.php');
+                const response = await fetchWithAuth(`${window.API_URL}/contractors?include_inactive=true&contractor_type=supplier`);
+                const contractors = Array.isArray(response.contractors) ? response.contractors : [];
+
+                if (!contractors.length) {
+                    grid.innerHTML = '<div class="loading-note" style="color:#ddd;">No contractors found.</div>';
+                    return;
+                }
+
+                grid.innerHTML = contractors.map(renderContractorCard).join('');
+            } catch (err) {
+                console.error('Failed to load contractors:', err);
+                grid.innerHTML = '<div class="loading-note" style="color:#f5f5f5;">Unable to load contractors. Please refresh.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadContractors);
     </script>
 </body>
 </html>

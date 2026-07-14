@@ -1,3 +1,4 @@
+<?php include 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -233,6 +234,8 @@
                 </div>
             </div>
 
+            <div id="formError" style="color:#ffdddd;background:#8b0000;padding:12px 14px;border-radius:12px;margin-bottom:16px;display:none;"></div>
+
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
 
@@ -242,13 +245,63 @@
     </div>
 
     <script>
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
         function togglePass(id, btn) {
             const input = document.getElementById(id);
             input.type = (input.type === 'password') ? 'text' : 'password';
         }
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+
+        function showFormError(message) {
+            const errorEl = document.getElementById('formError');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        function clearFormError() {
+            const errorEl = document.getElementById('formError');
+            errorEl.textContent = '';
+            errorEl.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (typeof tryRestoreSession === 'function') {
+                await tryRestoreSession();
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Login form submitted (wire this to your backend).');
+            clearFormError();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showFormError('Please enter both email and password.');
+                return;
+            }
+
+            try {
+                const auth = await loginUser(email, password);
+                const authData = {
+                    email: auth.email,
+                    role: auth.role,
+                    uid: auth.uid,
+                    id_token: auth.id_token,
+                    refresh_token: auth.refresh_token,
+                    expires_in: auth.expires_in,
+                    expires_at: Date.now() + (auth.expires_in * 1000)
+                };
+
+                saveAuthData(authData);
+                window.location.href = 'dashboard.php';
+            } catch (error) {
+                showFormError(error.message || 'Could not sign in. Please try again.');
+                console.error('Login error:', error);
+            }
         });
     </script>
 </body>

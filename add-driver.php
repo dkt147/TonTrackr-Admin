@@ -1,6 +1,7 @@
 <?php
 $pageTitle  = 'Add Driver';
 $activePage = 'drivers';
+include 'config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,11 +34,12 @@ $activePage = 'drivers';
 
                 <div class="section-card" style="width:100%; max-width:none;">
                     <div class="section-title">Personal Information</div>
-                    <p class="section-sub">Enter driver's full name and contact details.</p>
+                    <p class="section-sub">Enter driver details and account credentials.</p>
 
-                    <div class="form-field-box"><input type="text" id="first_name" placeholder="First Name"></div>
-                    <div class="form-field-box"><input type="text" id="last_name" placeholder="Last Name"></div>
+                    <div class="form-field-box"><input type="text" id="display_name" placeholder="Display Name"></div>
+                    <div class="form-field-box"><input type="text" id="company_name" placeholder="Company Name"></div>
                     <div class="form-field-box"><input type="email" id="email" placeholder="Email Address"></div>
+                    <div class="form-field-box"><input type="password" id="password" placeholder="Password"></div>
                     <div class="form-field-box"><input type="tel" id="phone" placeholder="Phone Number"></div>
 
                     <div class="section-title" style="margin-top:28px">License Information</div>
@@ -172,23 +174,63 @@ $activePage = 'drivers';
     </style>
 
     <script>
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
         }
 
-        function submitDriver() {
-            const firstName = document.getElementById('first_name').value;
-            const lastName = document.getElementById('last_name').value;
-            const email = document.getElementById('email').value;
+        async function submitDriver() {
+            const displayName = document.getElementById('display_name').value.trim();
+            const companyName = document.getElementById('company_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const phone = document.getElementById('phone').value.trim();
+            const licenseNumber = document.getElementById('license_number').value.trim();
 
-            if (!firstName || !lastName || !email) {
+            if (!displayName || !companyName || !email || !password || !phone || !licenseNumber) {
                 alert('Please fill in all required fields');
                 return;
             }
 
-            alert('Driver saved successfully!');
-            location.href = 'drivers.php';
+            const submitButton = document.querySelector('.btn-pill.primary');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Creating...';
+            }
+
+            try {
+                await requireAuthOrRedirect('login.php');
+
+                const response = await fetchWithAuth(`${window.API_URL}/drivers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        company_name: companyName,
+                        display_name: displayName,
+                        email,
+                        license_number: licenseNumber,
+                        password,
+                        phone
+                    })
+                });
+
+                alert(response.message || 'Driver created successfully.');
+                location.href = 'drivers.php';
+            } catch (error) {
+                console.error('Failed to create driver:', error);
+                alert(error.message || 'Unable to create driver.');
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Save Driver';
+                }
+            }
         }
     </script>
 </body>

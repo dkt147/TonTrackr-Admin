@@ -1,6 +1,7 @@
 <?php
 $pageTitle  = 'Admin Settings';
 $activePage = 'settings';
+include 'config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -318,6 +319,21 @@ $activePage = 'settings';
                     <p class="page-sub">Manage your account, subscription, and preferences</p>
                 </div>
 
+                <div class="user-profile-card" id="userProfileCard" style="margin-bottom: 24px; padding: 24px; background: #111111; border: 1px solid #2A2A2A; border-radius: 20px; display: none;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap: 20px; flex-wrap:wrap;">
+                        <div>
+                            <p style="margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--green);">Signed in as</p>
+                            <h2 id="profileDisplayName" style="margin:8px 0 6px; font-size:24px; color:#fff;">Loading...</h2>
+                            <p id="profileEmail" style="margin:0;color:#aaa;font-size:14px;">admin@tontracker.com</p>
+                        </div>
+                        <div style="text-align:right; min-width:180px;">
+                            <p id="profileRole" style="margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#74AA50;"></p>
+                            <p id="profileStatus" style="margin:8px 0 0; font-size:14px; color:#fff;"></p>
+                            <p id="profileUid" style="margin:8px 0 0; font-size:12px; color:#888;"></p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="settings-container">
 
                     <!-- Settings Tabs -->
@@ -571,6 +587,30 @@ $activePage = 'settings';
     </div>
 
     <script>
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
+        async function loadUserProfile() {
+            try {
+                await requireAuthOrRedirect('login.php');
+                const profile = await getCurrentUserProfile();
+                const profileCard = document.getElementById('userProfileCard');
+
+                document.getElementById('profileDisplayName').textContent = profile.display_name || 'Admin User';
+                document.getElementById('profileEmail').textContent = profile.email || '';
+                document.getElementById('profileRole').textContent = profile.role ? profile.role.replace('_', ' ') : '';
+                document.getElementById('profileStatus').textContent = profile.status ? profile.status.toUpperCase() : '';
+                document.getElementById('profileUid').textContent = profile.uid ? `UID: ${profile.uid}` : '';
+
+                profileCard.style.display = 'block';
+            } catch (error) {
+                console.error('Failed to load user profile:', error);
+            }
+        }
+
+        loadUserProfile();
+
         function switchTab(e, tabName) {
             // Hide all tabs
             const tabs = document.querySelectorAll('.tab-content');

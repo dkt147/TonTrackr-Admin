@@ -1,6 +1,7 @@
 <?php
 $pageTitle  = 'Drivers';
 $activePage = 'drivers';
+include 'config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -222,80 +223,11 @@ $activePage = 'drivers';
                     <button class="add-btn-primary" onclick="location.href='add-driver.php'">+ ADD DRIVER</button>
                 </div>
 
-                <div class="drivers-grid">
-                    <!-- Driver Card 1 -->
-                    <div class="driver-card">
-                        <div class="driver-avatar">KK</div>
-                        <div class="driver-name">Kaylee K.</div>
-                        <div class="driver-id">Driver ID: DRV-001</div>
-                        <div class="driver-info">
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">Status:</span>
-                                <span class="driver-info-value" style="color: var(--green);">Active</span>
-                            </div>
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">Phone:</span>
-                                <span class="driver-info-value">(206) 555-0123</span>
-                            </div>
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">License:</span>
-                                <span class="driver-info-value">WA12345678</span>
-                            </div>
-                        </div>
-                        <div class="driver-actions">
-                            <button class="btn-view" onclick="location.href='driver-detail.php?id=1'">View Profile</button>
-                            <button class="btn-edit" onclick="location.href='add-driver.php?id=1'">Edit</button>
-                        </div>
-                    </div>
-
-                    <!-- Driver Card 2 -->
-                    <div class="driver-card">
-                        <div class="driver-avatar">JM</div>
-                        <div class="driver-name">Jake M.</div>
-                        <div class="driver-id">Driver ID: DRV-002</div>
-                        <div class="driver-info">
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">Status:</span>
-                                <span class="driver-info-value" style="color: var(--green);">Active</span>
-                            </div>
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">Phone:</span>
-                                <span class="driver-info-value">(206) 555-0124</span>
-                            </div>
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">License:</span>
-                                <span class="driver-info-value">WA87654321</span>
-                            </div>
-                        </div>
-                        <div class="driver-actions">
-                            <button class="btn-view" onclick="location.href='driver-detail.php?id=2'">View Profile</button>
-                            <button class="btn-edit" onclick="location.href='add-driver.php?id=2'">Edit</button>
-                        </div>
-                    </div>
-
-                    <!-- Driver Card 3 -->
-                    <div class="driver-card">
-                        <div class="driver-avatar">TB</div>
-                        <div class="driver-name">Travis B.</div>
-                        <div class="driver-id">Driver ID: DRV-003</div>
-                        <div class="driver-info">
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">Status:</span>
-                                <span class="driver-info-value" style="color: #FFB800;">On Leave</span>
-                            </div>
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">Phone:</span>
-                                <span class="driver-info-value">(206) 555-0125</span>
-                            </div>
-                            <div class="driver-info-row">
-                                <span class="driver-info-label">License:</span>
-                                <span class="driver-info-value">WA55555555</span>
-                            </div>
-                        </div>
-                        <div class="driver-actions">
-                            <button class="btn-view" onclick="location.href='driver-detail.php?id=3'">View Profile</button>
-                            <button class="btn-edit" onclick="location.href='add-driver.php?id=3'">Edit</button>
-                        </div>
+                <div class="drivers-grid" id="driversGrid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⏳</div>
+                        <div class="empty-state-title">Loading drivers...</div>
+                        <div class="empty-state-text">Please wait while we load your fleet drivers.</div>
                     </div>
                 </div>
 
@@ -304,10 +236,109 @@ $activePage = 'drivers';
     </div>
 
     <script>
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
         }
+
+        function getInitials(name) {
+            if (!name) return 'DR';
+            return name
+                .split(' ')
+                .map(part => part[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+        }
+
+        function getField(value, alt) {
+            return value || alt || '—';
+        }
+
+        function getDriverTitle(driver) {
+            return driver.display_name || driver.displayName || driver.email || 'Unnamed Driver';
+        }
+
+        function getDriverStatus(driver) {
+            const status = driver.status || (driver.is_subscription_active === false ? 'inactive' : 'active');
+            if (status.toLowerCase() === 'active') return 'var(--green)';
+            if (status.toLowerCase() === 'inactive') return '#888';
+            return '#FFB800';
+        }
+
+        function renderDriverCard(driver) {
+            const initials = getInitials(getDriverTitle(driver));
+            const statusColor = getDriverStatus(driver);
+            const phone = getField(driver.contact_phone, driver.phone);
+            const email = getField(driver.email, driver.contact_email);
+            const vehicle = driver.assigned_vehicle ? driver.assigned_vehicle.plate_number || driver.assigned_vehicle.truck_number : 'None';
+            const id = driver.uid || '';
+
+            return `
+                <div class="driver-card">
+                    <div class="driver-avatar">${initials}</div>
+                    <div class="driver-name">${getDriverTitle(driver)}</div>
+                    <div class="driver-id">Driver ID: ${id || 'N/A'}</div>
+                    <div class="driver-info">
+                        <div class="driver-info-row">
+                            <span class="driver-info-label">Status:</span>
+                            <span class="driver-info-value" style="color: ${statusColor};">${getField(driver.status, driver.is_subscription_active === false ? 'Inactive' : 'Active')}</span>
+                        </div>
+                        <div class="driver-info-row">
+                            <span class="driver-info-label">Phone:</span>
+                            <span class="driver-info-value">${phone}</span>
+                        </div>
+                        <div class="driver-info-row">
+                            <span class="driver-info-label">Email:</span>
+                            <span class="driver-info-value">${email}</span>
+                        </div>
+                        <div class="driver-info-row">
+                            <span class="driver-info-label">Vehicle:</span>
+                            <span class="driver-info-value">${vehicle}</span>
+                        </div>
+                    </div>
+                    <div class="driver-actions">
+                        <button class="btn-view" onclick="location.href='driver-detail.php?id=${encodeURIComponent(id)}'">View Profile</button>
+                        <button class="btn-edit" onclick="location.href='add-driver.php?id=${encodeURIComponent(id)}'">Edit</button>
+                    </div>
+                </div>`;
+        }
+
+        function showEmptyState(message) {
+            const grid = document.getElementById('driversGrid');
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <div class="empty-state-title">${message}</div>
+                    <div class="empty-state-text">Try refreshing or checking your network.</div>
+                </div>`;
+        }
+
+        async function loadDrivers() {
+            const grid = document.getElementById('driversGrid');
+
+            try {
+                await requireAuthOrRedirect('login.php');
+                const response = await fetchWithAuth(`${window.API_URL}/drivers`);
+                const drivers = Array.isArray(response.drivers) ? response.drivers : [];
+
+                if (!drivers.length) {
+                    showEmptyState('No drivers found.');
+                    return;
+                }
+
+                grid.innerHTML = drivers.map(renderDriverCard).join('');
+            } catch (error) {
+                console.error('Failed to load drivers:', error);
+                showEmptyState('Unable to load drivers.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDrivers);
     </script>
 </body>
 </html>
