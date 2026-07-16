@@ -826,62 +826,9 @@
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="recentTicketsBody">
                                 <tr>
-                                    <td><span style="font-weight:600; color:#fff;">330</span></td>
-                                    <td style="color:#888;">05/14/26</td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div>
-                                                <div class="name">IFG Grangeville</div>
-                                                <div class="sub">IFG</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="color-green">$866.18</td>
-                                    <td><span class="badge-good">Paid</span></td>
-                                </tr>
-                                <tr>
-                                    <td><span style="font-weight:600; color:#fff;">1450</span></td>
-                                    <td style="color:#888;">05/13/26</td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div>
-                                                <div class="name">Run Of The Mill</div>
-                                                <div class="sub">CLW</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="color-green">$1,292.60</td>
-                                    <td><span class="badge-good">Paid</span></td>
-                                </tr>
-                                <tr>
-                                    <td><span style="font-weight:600; color:#fff;">330</span></td>
-                                    <td style="color:#888;">05/13/26</td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div>
-                                                <div class="name">Jungle Badger</div>
-                                                <div class="sub">IFG</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="color-green">$22,110.90</td>
-                                    <td><span class="badge-good">Paid</span></td>
-                                </tr>
-                                <tr>
-                                    <td><span style="font-weight:600; color:#fff;">110</span></td>
-                                    <td style="color:#888;">05/14/26</td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div>
-                                                <div class="name">Jungle Badger</div>
-                                                <div class="sub">CLW</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="color-green">$680.15</td>
-                                    <td><span class="badge-good">Paid</span></td>
+                                    <td colspan="5" style="color:#888; text-align:center;">Loading recent tickets…</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -980,6 +927,31 @@
     </script>
     <script src="assets/js/auth.js?v=2"></script>
     <script>
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatCurrency(value) {
+            const numeric = Number(value || 0);
+            return `$${numeric.toFixed(2)}`;
+        }
+
+        function formatDate(value) {
+            if (!value) return '—';
+            try {
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) return value;
+                return date.toLocaleDateString();
+            } catch (error) {
+                return value;
+            }
+        }
+
         async function loadDashboardStats() {
             try {
                 const stats = await fetchWithAuth(`${window.API_URL}/dashboard/stats`);
@@ -996,7 +968,55 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadDashboardStats);
+        async function loadRecentTickets() {
+            try {
+                const resp = await fetchWithAuth(`${window.API_URL}/tickets`);
+                let tickets = [];
+                if (Array.isArray(resp?.tickets)) tickets = resp.tickets;
+                else if (Array.isArray(resp)) tickets = resp;
+
+                const recent = tickets; // show all recent tickets on dashboard
+                const tbody = document.getElementById('recentTicketsBody');
+                if (!recent.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="color:#888; text-align:center;">No recent tickets</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = recent.map((t) => {
+                    const num = t.ticket_number || t.ticket_id || t.id || '—';
+                    const date = t.ticket_date || t.created_at || '';
+                    const mill = t.mill_name || 'No mill';
+                    const amount = t.ticket_amount ?? t.admin_earning ?? t.driver_earning ?? 0;
+                    const status = String(t.status || '').toLowerCase();
+                    const statusHtml = status === 'paid' ? '<span class="badge-good">Paid</span>' : `<span class="badge-good">${escapeHtml(t.status || '')}</span>`;
+
+                    return `
+                        <tr>
+                            <td><span style="font-weight:600; color:#fff;">${escapeHtml(num)}</span></td>
+                            <td style="color:#888;">${escapeHtml(formatDate(date))}</td>
+                            <td>
+                                <div class="cell-user">
+                                    <div>
+                                        <div class="name">${escapeHtml(mill)}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="color-green">${escapeHtml(formatCurrency(amount))}</td>
+                            <td>${statusHtml}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                const tbody = document.getElementById('recentTicketsBody');
+                tbody.innerHTML = '<tr><td colspan="5" style="color:#888; text-align:center;">Unable to load tickets</td></tr>';
+                console.error('Recent tickets failed:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+            loadRecentTickets();
+        });
     </script>
 </body>
 
