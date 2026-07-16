@@ -300,6 +300,29 @@ $activePage = 'jobs';
             return 'status-pending';
         }
 
+        function formatMillRatesValue(value) {
+            if (!value) return 'Not set';
+
+            if (Array.isArray(value)) {
+                if (value.every((item) => item && typeof item === 'object')) {
+                    return value
+                        .map((item) => {
+                            const rate = item.rate_per_ton ?? item.rate ?? item.value ?? item.amount;
+                            const millName = item.mill_name || item.name || item.mill_id || '';
+                            return rate !== undefined ? (millName ? `${millName}: ${rate}` : rate) : millName;
+                        })
+                        .filter(Boolean)
+                        .join(', ');
+                }
+
+                return value
+                    .map((item) => (typeof item === 'number' ? item : (item && item.rate_per_ton !== undefined ? item.rate_per_ton : String(item))))
+                    .join(', ');
+            }
+
+            return String(value);
+        }
+
         function renderJobs(jobs) {
             if (!jobs.length) {
                 jobsGrid.innerHTML = '<div class="empty-state">No jobs found yet.</div>';
@@ -312,9 +335,7 @@ $activePage = 'jobs';
                 const contractor = job.contractor_name || 'Unassigned';
                 const status = formatStatus(job.status);
                 const statusClass = getStatusClass(job.status);
-                const millRates = Array.isArray(job.mill_rates)
-                    ? job.mill_rates.join(', ')
-                    : (job.mill_rates ? String(job.mill_rates) : 'Not set');
+                const millRates = formatMillRatesValue(job.mill_rates);
                 const progress = Math.max(0, Math.min(100, Number(job.progress) || 0));
 
                 return `

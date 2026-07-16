@@ -199,7 +199,7 @@ include 'config.php';
                         <div class="page-title-group">
                             <p class="page-eyebrow">Manage</p>
                             <h1 class="page-title">Contractors</h1>
-                            <p class="page-sub">Manage contractor and supplier partnerships</p>
+                            <p class="page-sub" id="contractorsSummary">Loading contractors...</p>
                         </div>
                     </div>
                     <button class="add-btn-primary" onclick="location.href='add-contractor.php'">+ ADD CONTRACTOR</button>
@@ -295,22 +295,38 @@ include 'config.php';
             }
         }
 
+        function updateContractorsSummary(totalCount, isEmpty) {
+            const summary = document.getElementById('contractorsSummary');
+            if (!summary) return;
+
+            if (isEmpty) {
+                summary.textContent = 'No contractors found.';
+                return;
+            }
+
+            summary.textContent = `${totalCount} contractor${totalCount === 1 ? '' : 's'} available`;
+        }
+
         async function loadContractors() {
             const grid = document.getElementById('contractorsGrid');
             try {
                 await requireAuthOrRedirect('login.php');
-                const response = await fetchWithAuth(`${window.API_URL}/contractors?include_inactive=true&contractor_type=supplier`);
+                const response = await fetchWithAuth(`${window.API_URL}/contractors?include_inactive=true`);
                 const contractors = Array.isArray(response.contractors) ? response.contractors : [];
+                const totalCount = Number.isFinite(Number(response.count)) ? Number(response.count) : contractors.length;
 
                 if (!contractors.length) {
                     grid.innerHTML = '<div class="loading-note" style="color:#ddd;">No contractors found.</div>';
+                    updateContractorsSummary(0, true);
                     return;
                 }
 
                 grid.innerHTML = contractors.map(renderContractorCard).join('');
+                updateContractorsSummary(totalCount, false);
             } catch (err) {
                 console.error('Failed to load contractors:', err);
                 grid.innerHTML = '<div class="loading-note" style="color:#f5f5f5;">Unable to load contractors. Please refresh.</div>';
+                updateContractorsSummary(0, true);
             }
         }
 

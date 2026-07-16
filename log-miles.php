@@ -2,6 +2,7 @@
 // log-miles.php
 $pageTitle  = 'Log Miles';
 $activePage = 'miles';
+include 'config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -193,12 +194,39 @@ $activePage = 'miles';
                     <span class="chevron">▼</span>
                 </div>
 
+                <div class="form-field-box">
+                    <label>Driver ID</label>
+                    <input type="text" id="driver_id" placeholder="Optional driver reference">
+                </div>
+
+                <div class="form-field-box">
+                    <label>Vehicle ID</label>
+                    <input type="text" id="vehicle_id" placeholder="Optional vehicle reference">
+                </div>
+
+                <div class="form-field-box">
+                    <label>Notes</label>
+                    <input type="text" id="notes" placeholder="Optional trip notes">
+                </div>
+
                 <div style="background: #1A1A1A; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px;">
                     <p style="font-size: 12px; color: #888; margin: 0 0 8px 0;">TOTAL MILES LOGGED</p>
                     <p style="font-size: 24px; font-weight: 700; color: var(--green); margin: 0;" id="total_miles">450</p>
                 </div>
 
-                <button class="btn-block btn-green" onclick="submitMiles()">SUBMIT</button>
+                <button class="btn-block btn-green" id="submit_miles_btn" onclick="submitMiles()">SUBMIT</button>
+
+                <div style="margin-top:24px; background:#111111; border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px;">
+                        <div>
+                            <h3 style="font-size:16px; margin-bottom:4px;">Recent Mileage Entries</h3>
+                            <p id="mileage_summary" style="font-size:12px; color:#888; margin:0;">Loading entries...</p>
+                        </div>
+                        <button class="btn-dark" type="button" onclick="loadMileageEntries()" style="padding:10px 14px; border:none; border-radius:999px; font-size:12px;">Refresh</button>
+                    </div>
+                    <div id="mileage_list" style="display:grid; gap:10px;"></div>
+                </div>
+
                 <p style="text-align:center; font-size:11px; color:#666; margin-top:16px;">All mile logs are recorded in your account history.</p>
             </div>
         </div>
@@ -207,12 +235,15 @@ $activePage = 'miles';
 </div>
 
 <script>
+    window.API_URL = '<?php echo addslashes($API_URL); ?>';
+</script>
+<script src="assets/js/auth.js?v=3"></script>
+<script>
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('sidebarOverlay').classList.toggle('open');
     }
 
-    // Calculate total miles
     function calculateMiles() {
         const starting = parseInt(document.getElementById('starting_miles').value) || 0;
         const ending = parseInt(document.getElementById('ending_miles').value) || 0;
@@ -220,13 +251,103 @@ $activePage = 'miles';
         document.getElementById('total_miles').textContent = total > 0 ? total.toLocaleString() : '0';
     }
 
-    // Update total miles on input change
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function setSubmitButtonState(isLoading) {
+        const button = document.getElementById('submit_miles_btn');
+        if (!button) return;
+        button.disabled = isLoading;
+        button.textContent = isLoading ? 'SUBMITTING...' : 'SUBMIT';
+    }
+
     document.getElementById('starting_miles').addEventListener('change', calculateMiles);
     document.getElementById('ending_miles').addEventListener('change', calculateMiles);
     document.getElementById('ending_miles').addEventListener('input', calculateMiles);
     document.getElementById('starting_miles').addEventListener('input', calculateMiles);
 
-    function submitMiles() {
+    function buildMileagePayload() {
+        const date = document.getElementById('log_date').value;
+        const startingMiles = document.getElementById('starting_miles').value;
+        const endingMiles = document.getElementById('ending_miles').value;
+        const state = document.getElementById('state_select').value;
+        const notes = document.getElementById('notes').value.trim();
+        const driverId = document.getElementById('driver_id').value.trim();
+        const vehicleId = document.getElementById('vehicle_id').value.trim();
+
+        const payload = {
+            ending_miles: Number(endingMiles),
+            log_date: date,
+            starting_miles: Number(startingMiles),
+            state: state,
+            notes: notes || ''
+        };
+
+        if (driverId) {
+            payload.driver_id = driverId;
+        }
+
+        if (vehicleId) {
+            payload.vehicle_id = vehicleId;
+        }
+
+        return payload;
+    }
+
+    async function loadMileageEntries() {
+        try {
+            await requireAuthOrRedirect('login.php');
+            const response = await fetchWithAuth(`${window.API_URL}/mileage`);
+            const entries = Array.isArray(response?.mileage) ? response.mileage : [];
+            const summary = document.getElementById('mileage_summary');
+            const list = document.getElementById('mileage_list');
+
+            if (summary) {
+                const total = typeof response?.total_miles === 'number' ? response.total_miles : entries.length;
+                summary.textContent = `${entries.length} entries • ${total} total miles`;
+            }
+
+            if (!list) return;
+
+            if (!entries.length) {
+                list.innerHTML = '<div style="padding:12px; border:1px dashed #2A2A2A; border-radius:12px; color:#888;">No mileage entries yet.</div>';
+                return;
+            }
+
+            list.innerHTML = entries.map((entry) => {
+                const id = entry.id ?? entry._id ?? '';
+                const date = entry.log_date || entry.date || '—';
+                const state = entry.state || '—';
+                const miles = entry.ending_miles && entry.starting_miles
+                    ? Number(entry.ending_miles) - Number(entry.starting_miles)
+                    : entry.total_miles || 0;
+                const notes = entry.notes || 'No notes';
+                return `
+                    <div style="padding:12px 14px; border:1px solid var(--border-color); border-radius:12px; background:#1A1A1A; display:flex; justify-content:space-between; gap:12px; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:13px; color:var(--green); font-weight:600;">${escapeHtml(date)} • ${escapeHtml(state)}</div>
+                            <div style="font-size:12px; color:#ccc; margin-top:4px;">${escapeHtml(notes)}</div>
+                            <div style="font-size:12px; color:#888; margin-top:6px;">${escapeHtml(miles)} miles</div>
+                        </div>
+                        <button type="button" onclick="deleteMileageEntry('${escapeHtml(id)}')" style="padding:8px 10px; border:none; border-radius:999px; background:#222; color:#fff; font-size:12px;">Delete</button>
+                    </div>`;
+            }).join('');
+        } catch (error) {
+            console.error('Failed to load mileage entries:', error);
+            const list = document.getElementById('mileage_list');
+            if (list) {
+                list.innerHTML = '<div style="padding:12px; border:1px dashed #2A2A2A; border-radius:12px; color:#888;">Unable to load mileage entries.</div>';
+            }
+        }
+    }
+
+    async function submitMiles() {
         const date = document.getElementById('log_date').value;
         const startingMiles = document.getElementById('starting_miles').value;
         const endingMiles = document.getElementById('ending_miles').value;
@@ -237,18 +358,61 @@ $activePage = 'miles';
             return;
         }
 
-        // Show success message
-        alert(`Miles logged successfully!\nDate: ${date}\nStarting: ${startingMiles}\nEnding: ${endingMiles}\nState: ${state}`);
-        
-        // Reset form
-        document.getElementById('starting_miles').value = '';
-        document.getElementById('ending_miles').value = '';
-        document.getElementById('log_date').value = new Date().toISOString().split('T')[0];
-        calculateMiles();
+        setSubmitButtonState(true);
+
+        try {
+            await requireAuthOrRedirect('login.php');
+            const payload = buildMileagePayload();
+            const response = await fetchWithAuth(`${window.API_URL}/mileage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const message = response?.message || 'Miles logged successfully.';
+            alert(message);
+
+            document.getElementById('starting_miles').value = '';
+            document.getElementById('ending_miles').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('driver_id').value = '';
+            document.getElementById('vehicle_id').value = '';
+            document.getElementById('log_date').value = new Date().toISOString().split('T')[0];
+            calculateMiles();
+            await loadMileageEntries();
+        } catch (error) {
+            console.error('Failed to submit mileage:', error);
+            alert(error.message || 'Unable to submit mileage.');
+        } finally {
+            setSubmitButtonState(false);
+        }
     }
 
-    // Initialize on page load
-    calculateMiles();
+    async function deleteMileageEntry(id) {
+        if (!id) return;
+
+        const confirmed = confirm('Delete this mileage entry?');
+        if (!confirmed) return;
+
+        try {
+            await requireAuthOrRedirect('login.php');
+            await fetchWithAuth(`${window.API_URL}/mileage/${encodeURIComponent(id)}`, {
+                method: 'DELETE'
+            });
+            await loadMileageEntries();
+            alert('Mileage entry deleted.');
+        } catch (error) {
+            console.error('Failed to delete mileage entry:', error);
+            alert(error.message || 'Unable to delete mileage entry.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        calculateMiles();
+        loadMileageEntries();
+    });
 </script>
 </body>
 </html>

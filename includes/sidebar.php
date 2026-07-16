@@ -1,7 +1,10 @@
 <?php
 // includes/sidebar.php
 $__currentFile = basename($_SERVER['PHP_SELF']);
-function navActive($file, $current){ return $file === $current ? 'active' : ''; }
+function navActive($file, $current){
+  $targets = is_array($file) ? $file : [$file];
+  return in_array($current, $targets, true) ? 'active' : '';
+}
 ?>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
@@ -36,7 +39,7 @@ function navActive($file, $current){ return $file === $current ? 'active' : ''; 
             stroke-width="1.8" stroke-linejoin="round" />
           <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
         </svg>
-        Tickets <span class="nav-badge">12</span>
+        Tickets
       </a>
       <a href="trucks.php" class="nav-link <?php echo navActive('trucks.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -61,12 +64,26 @@ function navActive($file, $current){ return $file === $current ? 'active' : ''; 
         </svg>
         Log Miles
       </a>
+      <a href="mills.php" class="nav-link <?php echo navActive(['mills.php', 'mill-detail.php', 'add-mill.php'], $__currentFile); ?>">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M4 20V8l8-4 8 4v12" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="M8 20v-6h8v6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+        </svg>
+        Mills
+      </a>
       <a href="jobs.php" class="nav-link <?php echo navActive('jobs.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M20 8H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
           <path d="M6 4v5M12 4v5M18 4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         </svg>
         Jobs
+      </a>
+      <a href="tasks.php" class="nav-link <?php echo navActive('tasks.php', $__currentFile); ?>">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M9 7h10M9 12h10M9 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M5 7h.01M5 12h.01M5 17h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+        Tasks
       </a>
       <a href="contractors.php" class="nav-link <?php echo navActive('contractors.php', $__currentFile); ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -118,12 +135,28 @@ function navActive($file, $current){ return $file === $current ? 'active' : ''; 
       <div class="sidebar-user-name">John Doe</div>
       <div class="sidebar-user-role">Fleet Admin</div>
     </div>
-    <button class="logout-btn" title="Log out" onclick="window.location.href='login.php'">
+    <a href="logout.php" class="logout-btn" title="Log out" role="button">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.8"
           stroke-linecap="round" stroke-linejoin="round" />
       </svg>
-    </button>
+    </a>
   </div>
 </aside>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div> 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<script>
+function handleLogout() {
+  if (typeof clearAuthData === 'function') {
+    clearAuthData();
+  } else {
+    localStorage.removeItem('tontrackr_auth');
+    localStorage.removeItem('tontrackr_id_token');
+    localStorage.removeItem('tontrackr_refresh_token');
+    localStorage.removeItem('tontrackr_auth_expires_at');
+    localStorage.removeItem('tontrackr_user_email');
+    localStorage.removeItem('tontrackr_user_role');
+    localStorage.removeItem('tontrackr_user_uid');
+  }
+  window.location.href = 'login.php';
+}
+</script>

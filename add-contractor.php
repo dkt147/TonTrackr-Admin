@@ -221,19 +221,19 @@ $isEdit = !empty($contractorId);
 
             try {
                 await requireAuthOrRedirect('login.php');
-                const contractor = await fetchWithAuth(`${window.API_URL}/contractors/${window.CONTRACTOR_ID}`);
+                const contractor = await fetchWithAuth(`${window.API_URL}/contractors/${encodeURIComponent(window.CONTRACTOR_ID)}`);
 
-                setValue('company_name', contractor.company_name);
-                setValue('contractor_type', contractor.contractor_type);
-                setValue('business_license', contractor.business_license);
-                setValue('contact_person', contractor.contact_person);
-                setValue('contact_email', contractor.contact_email);
-                setValue('contact_phone', contractor.contact_phone);
-                setValue('address', contractor.address);
-                setValue('city', contractor.city);
-                setValue('state', contractor.state);
-                setValue('zip', contractor.zip);
-                setValue('status', contractor.status);
+                setValue('company_name', contractor?.company_name);
+                setValue('contractor_type', contractor?.contractor_type);
+                setValue('business_license', contractor?.business_license);
+                setValue('contact_person', contractor?.contact_person);
+                setValue('contact_email', contractor?.contact_email);
+                setValue('contact_phone', contractor?.contact_phone);
+                setValue('address', contractor?.address);
+                setValue('city', contractor?.city);
+                setValue('state', contractor?.state);
+                setValue('zip', contractor?.zip);
+                setValue('status', contractor?.status);
             } catch (error) {
                 console.error('Failed to load contractor:', error);
                 alert('Unable to load contractor details. Returning to list.');
@@ -261,8 +261,17 @@ $isEdit = !empty($contractorId);
                     body: JSON.stringify(payload)
                 });
 
-                const action = window.CONTRACTOR_ID ? 'updated' : 'created';
-                alert(`Contractor ${action} successfully. ID: ${response.contractor_id}`);
+                const responseData = typeof response === 'string' ? (() => {
+                    try {
+                        return JSON.parse(response);
+                    } catch (error) {
+                        return null;
+                    }
+                })() : response;
+                const contractorId = responseData?.contractor_id || responseData?.id || '';
+                const message = responseData?.message || (contractorId ? `Contractor ${window.CONTRACTOR_ID ? 'updated' : 'created'} successfully. ID: ${contractorId}` : `Contractor ${window.CONTRACTOR_ID ? 'updated' : 'created'} successfully.`);
+
+                alert(message);
                 window.location.href = 'contractors.php';
             } catch (error) {
                 console.error('Save contractor failed:', error);

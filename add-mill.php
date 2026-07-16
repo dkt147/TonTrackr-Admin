@@ -1,7 +1,10 @@
 <?php
 // add-mill.php
 $pageTitle  = 'Add a Mill';
-$activePage = 'miles';
+$activePage = 'mills';
+include 'config.php';
+$millId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
+$isEdit = !empty($millId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -84,14 +87,30 @@ $activePage = 'miles';
 
         .form-field-box { background: #1A1A1A; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 12px; display: flex; align-items: center; color: #fff; transition: border-color 0.2s; }
         .form-field-box:focus-within { border-color: var(--green); }
-        .form-field-box input { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; padding: 0; width: 100%; }
+        .form-field-box input, .form-field-box select { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; padding: 0; width: 100%; }
         .form-field-box input::placeholder { color: #555; }
+        .form-field-box select option { background: #1A1A1A; color: #fff; }
 
         .step-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .helper-text { font-size: 12px; color: #888; margin: 0 0 12px 0; }
+        .button-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .button-row .btn-block { margin-top: 0; flex: 1; min-width: 140px; }
 
         .btn-block { width: 100%; padding: 16px; border-radius: var(--radius-lg); border: none; font-weight: 700; font-size: 15px; margin-top: 12px; transition: all 0.15s; }
         .btn-green { background: var(--green); color: #fff; }
         .btn-green:hover { opacity: 0.9; transform: scale(1.01); }
+        .btn-dark { background: #222; color: #fff; }
+        .btn-dark:hover { background: #333; }
+        .btn-danger { background: #8b2f2f; color: #fff; }
+        .btn-danger:hover { background: #a33b3b; }
+
+        .mills-list { display: grid; gap: 10px; }
+        .mill-card { padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 12px; background: #141414; cursor: pointer; }
+        .mill-card:hover { border-color: var(--green); }
+        .mill-card.active { border-color: var(--green); background: rgba(116, 170, 80, 0.14); }
+        .mill-card-title { font-size: 14px; font-weight: 600; color: #fff; }
+        .mill-card-meta { font-size: 12px; color: #888; margin-top: 4px; }
+        .report-box { padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; background: #141414; font-size: 13px; color: #ccc; }
 
         @media (max-width:1080px) { .page-content { padding: 28px; } }
         @media (max-width:860px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .page-wrapper { margin-left: 0; } .menu-toggle { display: flex; } .sidebar-overlay.open { display: block; } }
@@ -116,11 +135,20 @@ $activePage = 'miles';
                 </button>
 
                 <!-- ================= ADD MILL FORM ================= -->
-                <h2 class="step-title">Add a Mill</h2>
+                <h2 class="step-title"><?php echo $isEdit ? 'Edit Mill' : 'Add a Mill'; ?></h2>
+                <p class="helper-text"><?php echo $isEdit ? 'Update the selected mill and its reporting details.' : 'Create a new mill entry and keep the directory in sync.'; ?></p>
+
+                <div class="form-section">
+                    <div class="form-section-label">MILL DIRECTORY</div>
+                    <p class="helper-text">Existing mills loaded from the API.</p>
+                    <div id="mills_status" class="helper-text">Loading mills...</div>
+                    <div id="mills_list" class="mills-list"></div>
+                </div>
 
                 <div class="form-section">
                     <div class="form-section-label">MILL DETAILS</div>
-                    
+                    <input type="hidden" id="mill_id" value="">
+
                     <div class="form-field-box">
                         <input type="text" id="mill_name" placeholder="Full Mill Name">
                     </div>
@@ -132,9 +160,25 @@ $activePage = 'miles';
                     <div class="form-field-box">
                         <input type="text" id="mill_location" placeholder="Location (city, state)">
                     </div>
+
+                    <div class="form-field-box">
+                        <select id="mill_status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="btn-block btn-green" id="submit_mill_btn" type="button" onclick="saveMill()">SAVE MILL</button>
+                        <button class="btn-block btn-dark" type="button" onclick="resetMillForm()">CLEAR</button>
+                        <button class="btn-block btn-danger" id="delete_mill_btn" type="button" onclick="deleteSelectedMill()" style="display:none;">DELETE MILL</button>
+                    </div>
                 </div>
 
-                <button class="btn-block btn-green" onclick="submitMill()">+ ADD MILL</button>
+                <div class="form-section" id="mill_report_panel" style="display:none;">
+                    <div class="form-section-label">MILL REPORT</div>
+                    <div id="mill_report" class="report-box">Select a mill to view its report.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -142,29 +186,213 @@ $activePage = 'miles';
 </div>
 
 <script>
+    window.API_URL = '<?php echo addslashes($API_URL); ?>';
+    window.MILL_ID = '<?php echo addslashes($millId); ?>';
+    window.IS_EDIT_MODE = '<?php echo $isEdit ? '1' : '0'; ?>';
+</script>
+<script src="assets/js/auth.js?v=4"></script>
+<script>
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('sidebarOverlay').classList.toggle('open');
     }
 
-    function submitMill() {
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function setSubmitButtonState(isLoading) {
+        const button = document.getElementById('submit_mill_btn');
+        if (!button) return;
+        button.disabled = isLoading;
+        button.textContent = isLoading ? 'SAVING...' : 'SAVE MILL';
+    }
+
+    function resetMillForm() {
+        document.getElementById('mill_id').value = window.MILL_ID || '';
+        document.getElementById('mill_name').value = '';
+        document.getElementById('mill_abbr').value = '';
+        document.getElementById('mill_location').value = '';
+        document.getElementById('mill_status').value = 'active';
+        document.getElementById('mill_report').innerHTML = 'Select a mill to view its report.';
+        document.getElementById('mill_report_panel').style.display = window.MILL_ID ? 'block' : 'none';
+        document.getElementById('delete_mill_btn').style.display = window.MILL_ID ? 'inline-block' : 'none';
+        document.querySelectorAll('.mill-card').forEach((card) => card.classList.remove('active'));
+    }
+
+    async function loadMills() {
+        try {
+            await requireAuthOrRedirect('login.php');
+            const response = await fetchWithAuth(`${window.API_URL}/mills`);
+            const mills = Array.isArray(response?.mills) ? response.mills : [];
+            const list = document.getElementById('mills_list');
+            const status = document.getElementById('mills_status');
+
+            if (status) {
+                status.textContent = `${mills.length} mill${mills.length === 1 ? '' : 's'} available`;
+            }
+
+            if (!list) return;
+
+            if (!mills.length) {
+                list.innerHTML = '<div class="mill-card"><div class="mill-card-title">No mills found</div><div class="mill-card-meta">Create one to get started.</div></div>';
+                return;
+            }
+
+            list.innerHTML = mills.map((mill) => `
+                <div class="mill-card" data-id="${escapeHtml(mill.id)}" onclick="selectMill('${escapeHtml(mill.id)}')">
+                    <div class="mill-card-title">${escapeHtml(mill.full_name || mill.abbreviated_name || 'Unnamed Mill')}</div>
+                    <div class="mill-card-meta">${escapeHtml(mill.abbreviated_name || '')} • ${escapeHtml(mill.location || 'No location')}</div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Failed to load mills:', error);
+            const list = document.getElementById('mills_list');
+            if (list) {
+                list.innerHTML = '<div class="mill-card"><div class="mill-card-title">Unable to load mills</div><div class="mill-card-meta">Please refresh or sign in again.</div></div>';
+            }
+        }
+    }
+
+    async function selectMill(millId) {
+        if (!millId) return;
+
+        document.querySelectorAll('.mill-card').forEach((card) => {
+            card.classList.toggle('active', card.getAttribute('data-id') === millId);
+        });
+
+        try {
+            await requireAuthOrRedirect('login.php');
+            const mill = await fetchWithAuth(`${window.API_URL}/mills/${encodeURIComponent(millId)}`);
+            document.getElementById('mill_id').value = mill.id || millId;
+            document.getElementById('mill_name').value = mill.full_name || '';
+            document.getElementById('mill_abbr').value = mill.abbreviated_name || '';
+            document.getElementById('mill_location').value = mill.location || '';
+            document.getElementById('mill_status').value = mill.status || 'active';
+            document.getElementById('delete_mill_btn').style.display = 'inline-block';
+            document.getElementById('mill_report_panel').style.display = 'block';
+
+            const report = await fetchWithAuth(`${window.API_URL}/mills/${encodeURIComponent(millId)}/report`);
+            const reportBox = document.getElementById('mill_report');
+            reportBox.innerHTML = `
+                <div><strong>Ticket count:</strong> ${escapeHtml(report.ticket_count ?? 0)}</div>
+                <div><strong>Total ticket amount:</strong> ${escapeHtml(report.total_ticket_amount ?? 0)}</div>
+                <div><strong>Total admin revenue:</strong> ${escapeHtml(report.total_admin_revenue ?? 0)}</div>
+                <div><strong>Total driver payouts:</strong> ${escapeHtml(report.total_driver_payouts ?? 0)}</div>
+            `;
+        } catch (error) {
+            console.error('Failed to load mill details:', error);
+            alert(error.message || 'Unable to load mill details.');
+        }
+    }
+
+    async function loadMillForEdit() {
+        if (!window.MILL_ID) return;
+        try {
+            await requireAuthOrRedirect('login.php');
+            const mill = await fetchWithAuth(`${window.API_URL}/mills/${encodeURIComponent(window.MILL_ID)}`);
+            document.getElementById('mill_id').value = mill.id || window.MILL_ID;
+            document.getElementById('mill_name').value = mill.full_name || '';
+            document.getElementById('mill_abbr').value = mill.abbreviated_name || '';
+            document.getElementById('mill_location').value = mill.location || '';
+            document.getElementById('mill_status').value = mill.status || 'active';
+            document.getElementById('delete_mill_btn').style.display = 'inline-block';
+            document.getElementById('mill_report_panel').style.display = 'block';
+            const report = await fetchWithAuth(`${window.API_URL}/mills/${encodeURIComponent(window.MILL_ID)}/report`).catch(() => null);
+            const reportBox = document.getElementById('mill_report');
+            reportBox.innerHTML = report ? `
+                <div><strong>Ticket count:</strong> ${escapeHtml(report.ticket_count ?? 0)}</div>
+                <div><strong>Total ticket amount:</strong> ${escapeHtml(report.total_ticket_amount ?? 0)}</div>
+                <div><strong>Total admin revenue:</strong> ${escapeHtml(report.total_admin_revenue ?? 0)}</div>
+                <div><strong>Total driver payouts:</strong> ${escapeHtml(report.total_driver_payouts ?? 0)}</div>
+            ` : '<div class="mini-item">No report data found.</div>';
+        } catch (error) {
+            console.error('Failed to load mill for edit:', error);
+            alert(error.message || 'Unable to load mill.');
+        }
+    }
+
+    async function saveMill() {
         const millName = document.getElementById('mill_name').value.trim();
         const millAbbr = document.getElementById('mill_abbr').value.trim();
         const millLocation = document.getElementById('mill_location').value.trim();
+        const status = document.getElementById('mill_status').value;
+        const millId = document.getElementById('mill_id').value.trim();
 
         if (!millName || !millAbbr || !millLocation) {
             alert('Please fill in all fields');
             return;
         }
 
-        // Show success message
-        alert(`Mill added successfully!\nName: ${millName}\nAbbreviation: ${millAbbr}\nLocation: ${millLocation}`);
-        
-        // Reset form
-        document.getElementById('mill_name').value = '';
-        document.getElementById('mill_abbr').value = '';
-        document.getElementById('mill_location').value = '';
+        setSubmitButtonState(true);
+
+        try {
+            await requireAuthOrRedirect('login.php');
+            const payload = {
+                abbreviated_name: millAbbr,
+                full_name: millName,
+                location: millLocation,
+                status
+            };
+
+            const url = millId
+                ? `${window.API_URL}/mills/${encodeURIComponent(millId)}`
+                : `${window.API_URL}/mills`;
+            const method = millId ? 'PUT' : 'POST';
+
+            const response = await fetchWithAuth(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const message = response?.message || (millId ? 'Mill updated successfully.' : 'Mill created successfully.');
+            alert(message);
+            resetMillForm();
+            await loadMills();
+        } catch (error) {
+            console.error('Failed to save mill:', error);
+            alert(error.message || 'Unable to save mill.');
+        } finally {
+            setSubmitButtonState(false);
+        }
     }
+
+    async function deleteSelectedMill() {
+        const millId = document.getElementById('mill_id').value.trim();
+        if (!millId) return;
+
+        const confirmed = confirm('Delete this mill from the API?');
+        if (!confirmed) return;
+
+        try {
+            await requireAuthOrRedirect('login.php');
+            await fetchWithAuth(`${window.API_URL}/mills/${encodeURIComponent(millId)}`, {
+                method: 'DELETE'
+            });
+            alert('Mill deleted.');
+            resetMillForm();
+            await loadMills();
+        } catch (error) {
+            console.error('Failed to delete mill:', error);
+            alert(error.message || 'Unable to delete mill.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        resetMillForm();
+        loadMills();
+        if (window.MILL_ID) {
+            loadMillForEdit();
+        }
+    });
 </script>
 </body>
 </html>

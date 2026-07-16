@@ -65,6 +65,29 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
     <script>
         const jobId = <?php echo json_encode($jobId); ?>;
 
+        function formatMillRatesValue(value) {
+            if (!value) return '—';
+
+            if (Array.isArray(value)) {
+                if (value.every((item) => item && typeof item === 'object')) {
+                    return value
+                        .map((item) => {
+                            const rate = item.rate_per_ton ?? item.rate ?? item.value ?? item.amount;
+                            const millName = item.mill_name || item.name || item.mill_id || '';
+                            return rate !== undefined ? (millName ? `${millName}: ${rate}` : rate) : millName;
+                        })
+                        .filter(Boolean)
+                        .join(', ');
+                }
+
+                return value
+                    .map((item) => (typeof item === 'number' ? item : (item && item.rate_per_ton !== undefined ? item.rate_per_ton : String(item))))
+                    .join(', ');
+            }
+
+            return String(value);
+        }
+
         function renderJob(job) {
             const title = job.job_name || job.name || `Job ${jobId}`;
             document.getElementById('jobTitle').textContent = title;
@@ -74,7 +97,7 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
                 ['Contractor', job.contractor_name || 'Unassigned'],
                 ['Contractor Email', job.contractor_email || '—'],
                 ['Status', String(job.status || 'pending').toUpperCase()],
-                ['Mill Rates', Array.isArray(job.mill_rates) ? job.mill_rates.join(', ') : (job.mill_rates || '—')],
+                ['Mill Rates', formatMillRatesValue(job.mill_rates)],
                 ['Description', job.description || '—'],
                 ['ID', job.id || job.job_id || jobId]
             ];

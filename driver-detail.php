@@ -242,8 +242,8 @@ $driverId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
         }
 
         function renderDriver(data) {
-            const profile = data.profile || data;
-            const statusValue = (profile.status || data.status || 'active').toLowerCase();
+            const profile = data?.profile || data || {};
+            const statusValue = (profile.status || data?.status || 'active').toLowerCase();
             const badge = document.getElementById('statusBadge');
             if (badge) {
                 badge.textContent = statusValue;
@@ -303,7 +303,7 @@ $driverId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
 
             try {
                 await requireAuthOrRedirect('login.php');
-                const response = await fetchWithAuth(`${window.API_URL}/drivers/${driverId}/status`, {
+                const response = await fetchWithAuth(`${window.API_URL}/drivers/${encodeURIComponent(driverId)}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -311,7 +311,7 @@ $driverId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
                     body: JSON.stringify({ status })
                 });
 
-                const newStatus = response.status || status;
+                const newStatus = response?.status || status;
                 const badge = document.getElementById('statusBadge');
                 if (badge) {
                     badge.textContent = newStatus;
@@ -339,9 +339,9 @@ $driverId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
 
             try {
                 await requireAuthOrRedirect('login.php');
-                const driver = await fetchWithAuth(`${window.API_URL}/drivers/${driverId}`);
-                const earnings = await fetchWithAuth(`${window.API_URL}/drivers/${driverId}/earnings`);
-                const tickets = await fetchWithAuth(`${window.API_URL}/drivers/${driverId}/tickets`);
+                const driver = await fetchWithAuth(`${window.API_URL}/drivers/${encodeURIComponent(driverId)}`);
+                const earnings = await fetchWithAuth(`${window.API_URL}/drivers/${encodeURIComponent(driverId)}/earnings`);
+                const tickets = await fetchWithAuth(`${window.API_URL}/drivers/${encodeURIComponent(driverId)}/tickets`);
                 container.innerHTML = `${renderDriver(driver)}${renderEarningsSummary(earnings)}${renderTicketsList(tickets)}`;
             } catch (error) {
                 console.error('Driver details failed:', error);

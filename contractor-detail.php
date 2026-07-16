@@ -187,10 +187,18 @@ $contractorId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
 
             try {
                 await requireAuthOrRedirect('login.php');
-                await fetchWithAuth(`${window.API_URL}/contractors/${contractorId}`, {
+                const response = await fetchWithAuth(`${window.API_URL}/contractors/${encodeURIComponent(contractorId)}`, {
                     method: 'DELETE'
                 });
-                alert('Contractor deleted.');
+                const responseData = typeof response === 'string' ? (() => {
+                    try {
+                        return JSON.parse(response);
+                    } catch (error) {
+                        return null;
+                    }
+                })() : response;
+                const message = responseData?.message || 'Contractor deleted.';
+                alert(message);
                 window.location.href = 'contractors.php';
             } catch (error) {
                 console.error('Delete contractor failed:', error);

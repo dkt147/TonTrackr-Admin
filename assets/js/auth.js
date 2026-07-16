@@ -197,9 +197,12 @@ async function fetchWithAuth(url, options = {}) {
         return null;
     }
 
-    if (contentType.includes('application/json')) {
+    const trimmedText = text.trim();
+    const looksLikeJson = contentType.includes('application/json') || trimmedText.startsWith('{') || trimmedText.startsWith('[');
+
+    if (looksLikeJson) {
         try {
-            return JSON.parse(text);
+            return JSON.parse(trimmedText);
         } catch (error) {
             return text;
         }

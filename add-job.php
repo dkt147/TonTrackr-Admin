@@ -185,12 +185,47 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
 
         function parseMillRates(value) {
             if (!value) return [];
+
+            if (Array.isArray(value)) {
+                return value
+                    .map((item) => {
+                        if (typeof item === 'number') return item;
+                        if (typeof item === 'string') return Number(item);
+                        if (item && typeof item === 'object') {
+                            const directValue = item.rate_per_ton ?? item.rate ?? item.value ?? item.amount;
+                            return Number(directValue);
+                        }
+                        return null;
+                    })
+                    .filter((item) => Number.isFinite(item));
+            }
+
             return String(value)
                 .split(',')
                 .map((item) => item.trim())
                 .filter(Boolean)
                 .map((item) => Number(item))
-                .filter((item) => !Number.isNaN(item));
+                .filter((item) => Number.isFinite(item));
+        }
+
+        function formatMillRatesForInput(value) {
+            if (!value) return '';
+
+            if (Array.isArray(value)) {
+                return value
+                    .map((item) => {
+                        if (typeof item === 'number') return item;
+                        if (typeof item === 'string') return item;
+                        if (item && typeof item === 'object') {
+                            return item.rate_per_ton ?? item.rate ?? item.value ?? item.amount ?? '';
+                        }
+                        return '';
+                    })
+                    .filter((item) => item !== '' && item !== null && item !== undefined)
+                    .join(', ');
+            }
+
+            return String(value);
         }
 
         function getSelectedContractorName() {
@@ -214,12 +249,11 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
                 const job = await fetchWithAuth(`${window.API_URL}/jobs/${editJobId}`, { method: 'GET' });
                 document.getElementById('job_title').value = job.job_name || job.name || '';
                 document.getElementById('job_description').value = job.description || '';
-                document.getElementById('contractor').value = job.contractor_id || '';
+                document.getElementById('contractor').value = job.contractor_name || '';
+                document.getElementById('contractor_id').value = job.contractor_id || '';
                 document.getElementById('contractor_name').value = job.contractor_name || '';
                 document.getElementById('contractor_email').value = job.contractor_email || '';
-                document.getElementById('mill_rates').value = Array.isArray(job.mill_rates)
-                    ? job.mill_rates.join(', ')
-                    : (job.mill_rates || '');
+                document.getElementById('mill_rates').value = formatMillRatesForInput(job.mill_rates);
                 document.getElementById('status').value = String(job.status || 'pending').toLowerCase();
             } catch (error) {
                 console.error(error);
@@ -245,15 +279,13 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
                 contractor_id: contractorId,
                 contractor_name: contractorName,
                 job_name: jobTitle,
-                mill_rates: millRates
+                mill_rates: millRates,
+                status: status || 'pending'
             };
 
             try {
-                const url = isEditing ? `${window.API_URL}/jobs/${editJobId}` : `${window.API_URL}/jobs`;
+                const url = isEditing ? `${window.API_URL}/jobs/${encodeURIComponent(editJobId)}` : `${window.API_URL}/jobs`;
                 const method = isEditing ? 'PUT' : 'POST';
-                console.log("Payload:", payload);
-console.log("mill_rates:", payload.mill_rates);
-console.log("Type:", typeof payload.mill_rates);
                 await fetchWithAuth(url, {
                     method,
                     headers: {
@@ -265,8 +297,14 @@ console.log("Type:", typeof payload.mill_rates);
                 alert(isEditing ? 'Job updated successfully.' : 'Job created successfully.');
                 location.href = 'jobs.php';
             } catch (error) {
-                console.error(error);
-                alert(error.message || 'Unable to save job.');
+                console.error('Save job error:', error);
+                // Try to show server JSON error if available
+                try {
+                    const parsed = typeof error === 'string' ? JSON.parse(error) : (error && error.message ? JSON.parse(error.message) : null);
+                    alert(parsed && parsed.error ? parsed.error : (error.message || 'Unable to save job.'));
+                } catch (e) {
+                    alert(error.message || 'Unable to save job.');
+                }
             }
         }
 

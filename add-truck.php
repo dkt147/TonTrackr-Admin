@@ -1,13 +1,16 @@
-<?php
+﻿<?php
 $pageTitle  = 'Add a Truck';
 $activePage = 'drivers';
+include 'config.php';
+$truckId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
+$isEdit = !empty($truckId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TonTrackr · <?php echo htmlspecialchars($pageTitle); ?></title>
+    <title>TonTrackr · <?php echo htmlspecialchars($isEdit ? 'Edit Truck' : 'Add a Truck'); ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/app.css">
@@ -22,11 +25,11 @@ $activePage = 'drivers';
 
                 <div class="page-head">
                     <div style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="location.href='trucks.php'">
-                        <button class="btn-pill small" type="button" onclick="location.href='trucks.php'">← BACK</button>
+                        <button class="btn-pill small" type="button">← BACK</button>
                         <div>
                             <p class="page-eyebrow">Trucks</p>
-                            <h1 class="page-title">Add a Truck</h1>
-                            <p class="page-sub" style="margin-top:6px">Enter truck details and save it to the fleet.</p>
+                            <h1 class="page-title"><?php echo htmlspecialchars($isEdit ? 'Edit Truck' : 'Add a Truck'); ?></h1>
+                            <p class="page-sub" style="margin-top:6px"><?php echo htmlspecialchars($isEdit ? 'Update the truck details below.' : 'Enter truck details and save it to the fleet.'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -35,94 +38,119 @@ $activePage = 'drivers';
                     <div class="section-title">Truck Details</div>
                     <p class="section-sub">Fill in the fleet information and assign the truck to a driver.</p>
 
+                    <div class="form-field-box"><input type="text" id="driver_id" placeholder="Driver ID"></div>
+                    <div class="form-field-box"><input type="text" id="plate_number" placeholder="Plate Number"></div>
+                    <div class="form-field-box"><input type="text" id="truck_number" placeholder="Truck Number"></div>
                     <div class="form-field-box"><input type="text" id="year" placeholder="Year"></div>
                     <div class="form-field-box"><input type="text" id="make" placeholder="Make"></div>
                     <div class="form-field-box"><input type="text" id="model" placeholder="Model"></div>
-                    <div class="form-field-box"><input type="text" id="plate" placeholder="Licence Plate #"></div>
-                    <div class="form-field-box"><input type="text" id="truck_number" placeholder="Truck Number"></div>
-                    <div class="form-field-box"><input type="text" id="usdot" placeholder="USDOT"></div>
-
-                    <div class="form-field-box dropdown" id="truckTypeBox">
-                        <input type="text" id="truck_types_display" placeholder="Truck Type(s)" readonly value="Select truck type(s)" onclick="toggleDropdown(event)">
-                        <span style="color:#888;cursor:pointer" onclick="openModal(event)">▼</span>
-                        <div class="dd-panel" id="truckTypePanel" style="display:none">
-                            <div class="dd-row"><div>Long Log Truck</div><div class="switch" data-key="long" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
-                            <div class="dd-row"><div>Short Log Truck</div><div class="switch on" data-key="short" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
-                            <div class="dd-row"><div>Super Train Truck</div><div class="switch" data-key="super" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
-                            <div style="margin-top:12px;display:flex;gap:8px"><button class="big-btn" style="flex:1;background:transparent;border:1px solid #333;color:#ccc" onclick="closeDropdown()">Done</button><button class="big-btn" style="flex:1;background:var(--green);color:#000;border:none" onclick="applyTypes()">Apply</button></div>
-                        </div>
-                    </div>
-
-                    <div class="form-field-box"><select id="assign_driver"><option value="">Assign Driver</option><option>Kaylee K.</option><option>Jake M.</option><option>Travis B.</option></select></div>
+                    <div class="form-field-box"><input type="text" id="vehicle_type" placeholder="Vehicle Type"></div>
+                    <div class="form-field-box"><select id="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                    <div class="form-field-box"><input type="text" id="capacity_tons" placeholder="Capacity Tons"></div>
 
                     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
                         <button class="btn-pill small" onclick="location.href='trucks.php'">Cancel</button>
-                        <button class="btn-pill primary" onclick="submitTruck()">Save Truck</button>
+                        <button class="btn-pill primary" id="saveTruckBtn"><?php echo htmlspecialchars($isEdit ? 'Update Truck' : 'Save Truck'); ?></button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal-backdrop" id="truckTypeModal">
-        <div class="modal">
-            <h3>What type of truck are you driving today?</h3>
-            <button class="big-btn" onclick="selectModal('Long Log Truck')">LONG LOG TRUCK</button>
-            <button class="big-btn" onclick="selectModal('Short Log Truck')">SHORT LOG TRUCK</button>
-            <button class="big-btn" onclick="selectModal('Super Train Truck')">SUPER TRAIN TRUCK</button>
-            <div style="text-align:center;margin-top:8px"><button class="big-btn" style="background:#2a2a2a" onclick="closeModal()">Cancel</button></div>
-        </div>
-    </div>
-
     <script>
-        function toggleDropdown(e){
-            const panel = document.getElementById('truckTypePanel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        }
-        function closeDropdown(){ document.getElementById('truckTypePanel').style.display = 'none'; }
-
-        function toggleSwitch(el){
-            el.classList.toggle('on');
-        }
-
-        function applyTypes(){
-            const switches = document.querySelectorAll('#truckTypePanel .switch');
-            const selected = [];
-            switches.forEach(s=>{ if(s.classList.contains('on')){
-                const key = s.getAttribute('data-key');
-                if(key==='long') selected.push('Long Log Truck');
-                if(key==='short') selected.push('Short Log Truck');
-                if(key==='super') selected.push('Super Train Truck');
-            }});
-            document.getElementById('truck_types_display').value = selected.length ? selected.join(', ') : 'Select truck type(s)';
-            closeDropdown();
+        window.API_URL = '<?php echo addslashes($API_URL); ?>';
+        window.TRUCK_ID = '<?php echo addslashes($truckId); ?>';
+    </script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script>
+        function getValue(id) {
+            return document.getElementById(id)?.value.trim() || '';
         }
 
-        function openModal(e){ e.stopPropagation(); document.getElementById('truckTypeModal').style.display = 'flex'; }
-        function closeModal(){ document.getElementById('truckTypeModal').style.display = 'none'; }
-        function selectModal(type){ document.getElementById('truck_types_display').value = type; closeModal(); }
+        function setValue(id, value) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = value || '';
+            }
+        }
 
-        function submitTruck(){
-            const year = document.getElementById('year').value.trim();
-            const make = document.getElementById('make').value.trim();
-            const model = document.getElementById('model').value.trim();
-            const plate = document.getElementById('plate').value.trim();
-            const truckNumber = document.getElementById('truck_number').value.trim();
-            const usdot = document.getElementById('usdot').value.trim();
-            const types = document.getElementById('truck_types_display').value;
+        function buildPayload() {
+            return {
+                driver_id: getValue('driver_id'),
+                plate_number: getValue('plate_number'),
+                truck_number: getValue('truck_number'),
+                year: getValue('year'),
+                make: getValue('make'),
+                model: getValue('model'),
+                vehicle_type: getValue('vehicle_type'),
+                status: getValue('status'),
+                capacity_tons: getValue('capacity_tons')
+            };
+        }
 
-            if(!year||!make||!model||!plate||!truckNumber||!usdot){
-                alert('Please fill in all truck details');
+        async function loadTruckForEdit() {
+            if (!window.TRUCK_ID) return;
+            try {
+                await requireAuthOrRedirect('login.php');
+                const truck = await fetchWithAuth(`${window.API_URL}/vehicles/${encodeURIComponent(window.TRUCK_ID)}`);
+                if (!truck) return;
+                setValue('driver_id', truck.driver_id);
+                setValue('plate_number', truck.plate_number);
+                setValue('truck_number', truck.truck_number);
+                setValue('year', truck.year);
+                setValue('make', truck.make);
+                setValue('model', truck.model);
+                setValue('vehicle_type', truck.vehicle_type);
+                setValue('status', truck.status || 'active');
+                setValue('capacity_tons', truck.capacity_tons);
+            } catch (error) {
+                console.error('Unable to load truck:', error);
+                alert('Unable to load truck details.');
+            }
+        }
+
+        async function saveTruck() {
+            const payload = buildPayload();
+            if (!payload.plate_number || !payload.truck_number || !payload.make || !payload.model) {
+                alert('Please fill in the required truck fields: plate number, truck number, make, and model.');
                 return;
             }
 
-            alert('Truck added:\n'+truckNumber+' - '+make+' '+model+'\nType: '+types);
-            document.getElementById('year').value='';document.getElementById('make').value='';document.getElementById('model').value='';document.getElementById('plate').value='';document.getElementById('truck_number').value='';document.getElementById('usdot').value='';document.getElementById('truck_types_display').value='Select truck type(s)';
+            const button = document.getElementById('saveTruckBtn');
+            if (button) {
+                button.disabled = true;
+                button.textContent = window.TRUCK_ID ? 'Updating...' : 'Saving...';
+            }
+
+            try {
+                await requireAuthOrRedirect('login.php');
+                const url = window.TRUCK_ID
+                    ? `${window.API_URL}/vehicles/${encodeURIComponent(window.TRUCK_ID)}`
+                    : `${window.API_URL}/vehicles`;
+                const method = window.TRUCK_ID ? 'PUT' : 'POST';
+
+                await fetchWithAuth(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                alert(window.TRUCK_ID ? 'Truck updated successfully.' : 'Truck created successfully.');
+                location.href = 'trucks.php';
+            } catch (error) {
+                console.error('Unable to save truck:', error);
+                alert(error.message || 'Unable to save truck.');
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = window.TRUCK_ID ? 'Update Truck' : 'Save Truck';
+                }
+            }
         }
 
-        document.addEventListener('click', function(ev){
-            const panel = document.getElementById('truckTypePanel');
-            if(panel && !panel.contains(ev.target) && ev.target.id !== 'truck_types_display') panel.style.display='none';
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('saveTruckBtn').addEventListener('click', saveTruck);
+            loadTruckForEdit();
         });
     </script>
 </body>

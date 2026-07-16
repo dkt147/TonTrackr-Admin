@@ -2,6 +2,8 @@
 $pageTitle  = 'Add Driver';
 $activePage = 'drivers';
 include 'config.php';
+$driverId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
+$isEdit = !empty($driverId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,8 +28,8 @@ include 'config.php';
                         <button class="btn-pill small" type="button" onclick="location.href='drivers.php'">← BACK</button>
                         <div>
                             <p class="page-eyebrow">Drivers</p>
-                            <h1 class="page-title">Add a New Driver</h1>
-                            <p class="page-sub" style="margin-top:6px">Enter driver information and assign to the fleet.</p>
+                            <h1 class="page-title"><?php echo $isEdit ? 'Driver Details' : 'Add a New Driver'; ?></h1>
+                            <p class="page-sub" style="margin-top:6px"><?php echo $isEdit ? 'This driver can be viewed here, but direct edits are currently not supported by the API.' : 'Enter driver information and assign to the fleet.'; ?></p>
                         </div>
                     </div>
                 </div>
@@ -69,7 +71,7 @@ include 'config.php';
 
                     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:28px">
                         <button class="btn-pill small" onclick="location.href='drivers.php'">Cancel</button>
-                        <button class="btn-pill primary" onclick="submitDriver()">Save Driver</button>
+                        <button class="btn-pill primary" onclick="submitDriver()"><?php echo $isEdit ? 'Save Unavailable' : 'Save Driver'; ?></button>
                     </div>
                 </div>
             </div>
@@ -175,6 +177,7 @@ include 'config.php';
 
     <script>
         window.API_URL = '<?php echo addslashes($API_URL); ?>';
+        window.DRIVER_ID = '<?php echo addslashes(isset($_GET['id']) ? $_GET['id'] : ''); ?>';
     </script>
     <script src="assets/js/auth.js?v=2"></script>
     <script>
@@ -183,15 +186,73 @@ include 'config.php';
             document.getElementById('sidebarOverlay').classList.toggle('open');
         }
 
-        async function submitDriver() {
-            const displayName = document.getElementById('display_name').value.trim();
-            const companyName = document.getElementById('company_name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const phone = document.getElementById('phone').value.trim();
-            const licenseNumber = document.getElementById('license_number').value.trim();
+        function getFieldValue(id) {
+            return document.getElementById(id)?.value.trim() || '';
+        }
 
-            if (!displayName || !companyName || !email || !password || !phone || !licenseNumber) {
+        function setFieldValue(id, value) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value || '';
+            }
+        }
+
+        function buildDriverPayload() {
+            const payload = {
+                company_name: getFieldValue('company_name'),
+                display_name: getFieldValue('display_name'),
+                email: getFieldValue('email'),
+                phone: getFieldValue('phone'),
+                license_number: getFieldValue('license_number')
+            };
+
+            const password = document.getElementById('password').value;
+            if (password) {
+                payload.password = password;
+            }
+
+            const status = getFieldValue('status');
+            if (status) {
+                payload.status = status;
+            }
+
+            return payload;
+        }
+
+        async function loadDriverForEdit() {
+            if (!window.DRIVER_ID) return;
+
+            try {
+                await requireAuthOrRedirect('login.php');
+                const response = await fetchWithAuth(`${window.API_URL}/drivers/${encodeURIComponent(window.DRIVER_ID)}`);
+                const profile = response?.profile || response || {};
+
+                setFieldValue('display_name', profile.display_name || profile.displayName);
+                setFieldValue('company_name', profile.company_name || profile.companyName);
+                setFieldValue('email', profile.email);
+                setFieldValue('phone', profile.phone);
+                setFieldValue('license_number', profile.license_number || profile.licenseNumber);
+                setFieldValue('status', profile.status);
+            } catch (error) {
+                console.error('Failed to load driver for edit:', error);
+                alert('Unable to load driver details.');
+            }
+        }
+
+        async function submitDriver() {
+            if (window.DRIVER_ID) {
+                alert('Driver editing is not supported by the current API. You can view the profile or update the status from the driver details page.');
+                return;
+            }
+
+            const displayName = getFieldValue('display_name');
+            const companyName = getFieldValue('company_name');
+            const email = getFieldValue('email');
+            const password = document.getElementById('password').value;
+            const phone = getFieldValue('phone');
+            const licenseNumber = getFieldValue('license_number');
+
+            if (!displayName || !companyName || !email || !phone || !licenseNumber || !password) {
                 alert('Please fill in all required fields');
                 return;
             }
@@ -199,28 +260,23 @@ include 'config.php';
             const submitButton = document.querySelector('.btn-pill.primary');
             if (submitButton) {
                 submitButton.disabled = true;
-                submitButton.textContent = 'Creating...';
+                submitButton.textContent = window.DRIVER_ID ? 'Updating...' : 'Creating...';
             }
 
             try {
                 await requireAuthOrRedirect('login.php');
-
-                const response = await fetchWithAuth(`${window.API_URL}/drivers`, {
-                    method: 'POST',
+                const method = window.DRIVER_ID ? 'PUT' : 'POST';
+                const url = window.DRIVER_ID ? `${window.API_URL}/drivers/${encodeURIComponent(window.DRIVER_ID)}` : `${window.API_URL}/drivers`;
+                const response = await fetchWithAuth(url, {
+                    method,
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        company_name: companyName,
-                        display_name: displayName,
-                        email,
-                        license_number: licenseNumber,
-                        password,
-                        phone
-                    })
+                    body: JSON.stringify(buildDriverPayload())
                 });
 
-                alert(response.message || 'Driver created successfully.');
+                const message = response?.message || (window.DRIVER_ID ? 'Driver updated successfully.' : 'Driver created successfully.');
+                alert(message);
                 location.href = 'drivers.php';
             } catch (error) {
                 console.error('Failed to create driver:', error);
@@ -232,6 +288,8 @@ include 'config.php';
                 }
             }
         }
+
+        document.addEventListener('DOMContentLoaded', loadDriverForEdit);
     </script>
 </body>
 </html>

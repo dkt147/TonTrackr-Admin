@@ -217,7 +217,7 @@ include 'config.php';
                         <div class="page-title-group">
                             <p class="page-eyebrow">Manage</p>
                             <h1 class="page-title">Drivers</h1>
-                            <p class="page-sub">View and manage all drivers in your fleet</p>
+                            <p class="page-sub" id="driversSummary">Loading drivers...</p>
                         </div>
                     </div>
                     <button class="add-btn-primary" onclick="location.href='add-driver.php'">+ ADD DRIVER</button>
@@ -303,7 +303,7 @@ include 'config.php';
                     </div>
                     <div class="driver-actions">
                         <button class="btn-view" onclick="location.href='driver-detail.php?id=${encodeURIComponent(id)}'">View Profile</button>
-                        <button class="btn-edit" onclick="location.href='add-driver.php?id=${encodeURIComponent(id)}'">Edit</button>
+                        <button class="btn-edit" onclick="location.href='driver-detail.php?id=${encodeURIComponent(id)}'">Details</button>
                     </div>
                 </div>`;
         }
@@ -318,22 +318,32 @@ include 'config.php';
                 </div>`;
         }
 
+        function updateDriversSummary(totalCount) {
+            const summary = document.getElementById('driversSummary');
+            if (!summary) return;
+            summary.textContent = totalCount > 0 ? `${totalCount} driver${totalCount === 1 ? '' : 's'} found` : 'No drivers found';
+        }
+
         async function loadDrivers() {
             const grid = document.getElementById('driversGrid');
 
             try {
                 await requireAuthOrRedirect('login.php');
                 const response = await fetchWithAuth(`${window.API_URL}/drivers`);
-                const drivers = Array.isArray(response.drivers) ? response.drivers : [];
+                const drivers = Array.isArray(response?.drivers) ? response.drivers : (Array.isArray(response) ? response : []);
+                const totalCount = Number.isFinite(Number(response?.count)) ? Number(response.count) : drivers.length;
 
                 if (!drivers.length) {
+                    updateDriversSummary(0);
                     showEmptyState('No drivers found.');
                     return;
                 }
 
+                updateDriversSummary(totalCount);
                 grid.innerHTML = drivers.map(renderDriverCard).join('');
             } catch (error) {
                 console.error('Failed to load drivers:', error);
+                updateDriversSummary(0);
                 showEmptyState('Unable to load drivers.');
             }
         }
