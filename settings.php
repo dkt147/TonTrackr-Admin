@@ -304,6 +304,8 @@ include 'config.php';
             gap: 10px;
         }
     </style>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="main-wrapper">
@@ -353,36 +355,43 @@ include 'config.php';
                             </div>
 
                             <div class="form-field-group">
-                                <label class="form-field-label">First Name</label>
+                                <label class="form-field-label">Display Name</label>
                                 <div class="form-field-box">
-                                    <input type="text" value="John" placeholder="First Name">
-                                </div>
-                            </div>
-
-                            <div class="form-field-group">
-                                <label class="form-field-label">Last Name</label>
-                                <div class="form-field-box">
-                                    <input type="text" value="Doe" placeholder="Last Name">
+                                    <input type="text" id="display_name" value="" placeholder="Display Name">
                                 </div>
                             </div>
 
                             <div class="form-field-group">
                                 <label class="form-field-label">Email Address</label>
                                 <div class="form-field-box">
-                                    <input type="email" value="john@example.com" placeholder="Email Address">
+                                    <input type="email" id="profile_email" value="" placeholder="Email Address" disabled>
                                 </div>
                             </div>
 
                             <div class="form-field-group">
                                 <label class="form-field-label">Phone Number</label>
                                 <div class="form-field-box">
-                                    <input type="tel" value="(206) 555-0000" placeholder="Phone Number">
+                                    <input type="tel" id="phone" value="" placeholder="Phone Number">
+                                </div>
+                            </div>
+
+                            <div class="form-field-group">
+                                <label class="form-field-label">Company Name</label>
+                                <div class="form-field-box">
+                                    <input type="text" id="company_name" value="" placeholder="Company Name">
+                                </div>
+                            </div>
+
+                            <div class="form-field-group">
+                                <label class="form-field-label">Country</label>
+                                <div class="form-field-box">
+                                    <input type="text" id="country" value="" placeholder="Country">
                                 </div>
                             </div>
 
                             <div class="button-group">
-                                <button class="btn-pill primary">Save Changes</button>
-                                <button class="btn-pill">Cancel</button>
+                                <button class="btn-pill primary" id="saveProfileBtn">Save Changes</button>
+                                <button class="btn-pill" type="button" id="cancelProfileBtn">Cancel</button>
                             </div>
                         </div>
 
@@ -603,6 +612,19 @@ include 'config.php';
                 document.getElementById('profileStatus').textContent = profile.status ? profile.status.toUpperCase() : '';
                 document.getElementById('profileUid').textContent = profile.uid ? `UID: ${profile.uid}` : '';
 
+                // populate account form fields
+                const displayInput = document.getElementById('display_name');
+                const emailInput = document.getElementById('profile_email');
+                const phoneInput = document.getElementById('phone');
+                const companyInput = document.getElementById('company_name');
+                const countryInput = document.getElementById('country');
+
+                if (displayInput) displayInput.value = profile.display_name || '';
+                if (emailInput) emailInput.value = profile.email || '';
+                if (phoneInput) phoneInput.value = profile.phone || '';
+                if (companyInput) companyInput.value = profile.company_name || '';
+                if (countryInput) countryInput.value = profile.country || '';
+
                 profileCard.style.display = 'block';
             } catch (error) {
                 console.error('Failed to load user profile:', error);
@@ -610,6 +632,36 @@ include 'config.php';
         }
 
         loadUserProfile();
+
+        async function saveUserProfile() {
+            try {
+                const payload = {
+                    display_name: document.getElementById('display_name').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    company_name: document.getElementById('company_name').value.trim(),
+                    country: document.getElementById('country').value.trim()
+                };
+
+                await fetchWithAuth(AUTH_API_ME, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                alert('Profile saved successfully.');
+                await loadUserProfile();
+            } catch (error) {
+                console.error('Failed to save profile:', error);
+                alert(error.message || 'Unable to save profile.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const saveBtn = document.getElementById('saveProfileBtn');
+            if (saveBtn) saveBtn.addEventListener('click', saveUserProfile);
+            const cancelBtn = document.getElementById('cancelProfileBtn');
+            if (cancelBtn) cancelBtn.addEventListener('click', loadUserProfile);
+        });
 
         function switchTab(e, tabName) {
             // Hide all tabs

@@ -28,6 +28,8 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
         .btn-pill.danger { background:#4f1f1f; color:#ffb4b4; border:none; }
         .muted { color:#888; }
     </style>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="main-wrapper">

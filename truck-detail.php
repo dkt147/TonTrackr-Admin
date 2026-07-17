@@ -27,6 +27,8 @@ $truckName = $truckId ? 'Truck ' . $truckId : 'Truck Detail';
         .loading-note { padding: 24px; color: #ddd; text-align: center; }
         @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
     </style>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="main-wrapper">

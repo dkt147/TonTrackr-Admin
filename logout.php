@@ -22,6 +22,8 @@ session_destroy();
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Logging out...</title>
     <style>body{font-family:Arial,Helvetica,sans-serif;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}</style>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div>

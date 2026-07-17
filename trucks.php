@@ -27,6 +27,8 @@ include 'config.php';
     .form-field input, .form-field select { width:100%; border:1px solid #2a2a2a; border-radius:12px; padding:10px 12px; background:#000; color:#fff; }
     .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
   </style>
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
   <div class="main-wrapper">

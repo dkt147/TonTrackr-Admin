@@ -93,6 +93,8 @@ $activePage = 'tickets';
         }
         @media (max-width:560px) { .preview-table th, .preview-table td { padding:12px 8px; } .export-header { flex-direction:column; align-items:flex-start; } }
     </style>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="main-wrapper">

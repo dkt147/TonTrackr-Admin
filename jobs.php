@@ -242,6 +242,8 @@ $activePage = 'jobs';
             text-align: center;
         }
     </style>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="main-wrapper">

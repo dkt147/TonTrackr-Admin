@@ -92,6 +92,8 @@
         }
         @media (max-width:560px) { .page-head { align-items:flex-start; } .ticket-card { flex-direction:column; align-items:flex-start; } .stats-grid { grid-template-columns: 1fr; } }
     </style>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="main-wrapper">

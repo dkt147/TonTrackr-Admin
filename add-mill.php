@@ -15,9 +15,11 @@ $isEdit = !empty($millId);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <style>
-        :root {
-            --green: #74AA50;
+    </style>
+    
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
+</head>
             --teal: #1D6960;
             --dark-green: #3E5824;
             --tan: #BAAC88;

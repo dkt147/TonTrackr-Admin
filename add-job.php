@@ -13,6 +13,8 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="main-wrapper">
@@ -44,15 +46,12 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
                     <p class="section-sub">Enter the contractor ID from the API payload and the contractor details for the request.</p>
 
                     <div class="form-field-box"><select id="contractor">
-                        <option value="">Select Preset Contractor</option>
-                        <option value="John's Timber">John's Timber</option>
-                        <option value="Mountain Lumber">Mountain Lumber</option>
-                        <option value="Crown Wood Works">Crown Wood Works</option>
+                        <option value="">Loading contractors…</option>
                     </select></div>
                     <div class="form-field-box"><input type="text" id="contractor_id" placeholder="Contractor ID (required by API)"></div>
                     <div class="form-field-box"><input type="text" id="contractor_name" placeholder="Contractor Name"></div>
                     <div class="form-field-box"><input type="email" id="contractor_email" placeholder="Contractor Email"></div>
-                    <div class="form-field-box"><input type="text" id="mill_rates" placeholder="Mill rates (comma separated, e.g. 7.5, 8.25)"></div>
+                    <div class="form-field-box" id="millsContainer">Loading mills…</div>
 
                     <div class="section-title" style="margin-top:28px">Status</div>
                     <p class="section-sub">Set the initial job status.</p>
@@ -253,7 +252,15 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
                 document.getElementById('contractor_id').value = job.contractor_id || '';
                 document.getElementById('contractor_name').value = job.contractor_name || '';
                 document.getElementById('contractor_email').value = job.contractor_email || '';
-                document.getElementById('mill_rates').value = formatMillRatesForInput(job.mill_rates);
+                // populate mill rate inputs if present
+                if (job.mill_rates && Array.isArray(job.mill_rates)) {
+                    job.mill_rates.forEach((mr) => {
+                        const input = document.querySelector(`.mill-rate-input[data-mill-id="${mr.mill_id}"]`);
+                        if (input) input.value = mr.rate_per_ton ?? mr.rate ?? mr.value ?? '';
+                    });
+                } else {
+                    document.querySelectorAll('.mill-rate-input').forEach((el) => el.value = '');
+                }
                 document.getElementById('status').value = String(job.status || 'pending').toLowerCase();
             } catch (error) {
                 console.error(error);
@@ -267,7 +274,17 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
             const contractorEmail = document.getElementById('contractor_email').value.trim();
             const contractorId = document.getElementById('contractor_id').value.trim() || document.getElementById('contractor').value.trim();
             const status = document.getElementById('status').value;
-            const millRates = parseMillRates(document.getElementById('mill_rates').value);
+            // collect mill rates from inputs
+            const millRates = Array.from(document.querySelectorAll('.mill-rate-input'))
+                .map((el) => {
+                    const id = el.getAttribute('data-mill-id');
+                    const name = el.getAttribute('data-mill-name');
+                    const raw = el.value.trim();
+                    const rate = Number(raw);
+                    if (!id || !Number.isFinite(rate)) return null;
+                    return { mill_id: id, mill_name: name || '', rate_per_ton: rate };
+                })
+                .filter(Boolean);
 
             if (!jobTitle || !contractorName || !contractorId) {
                 alert('Please enter a job name, contractor name, and contractor ID.');
@@ -308,7 +325,109 @@ $jobId = isset($_GET['id']) ? trim($_GET['id']) : '';
             }
         }
 
-        loadJobForEdit();
+        async function loadContractors() {
+            try {
+                const resp = await fetchWithAuth(`${window.API_URL}/contractors`);
+                let contractors = [];
+                if (Array.isArray(resp?.contractors)) contractors = resp.contractors;
+                else if (Array.isArray(resp)) contractors = resp;
+
+                const sel = document.getElementById('contractor');
+                sel.innerHTML = '<option value="">Select Contractor</option>';
+                contractors.forEach((c) => {
+                    const id = c.id ?? c.contractor_id ?? c.uid ?? c._id ?? '';
+                    const name = c.name ?? c.display_name ?? c.company_name ?? c.email ?? '';
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = name;
+                    opt.setAttribute('data-email', c.email || '');
+                    opt.setAttribute('data-name', name);
+                    sel.appendChild(opt);
+                });
+
+                sel.addEventListener('change', () => {
+                    const value = sel.value;
+                    const selected = sel.selectedOptions[0];
+                    document.getElementById('contractor_id').value = value;
+                    if (selected) {
+                        const name = selected.getAttribute('data-name') || '';
+                        const email = selected.getAttribute('data-email') || '';
+                        // backend can fill name/email but prefill here for convenience
+                        document.getElementById('contractor_name').value = name;
+                        document.getElementById('contractor_email').value = email;
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to load contractors:', error);
+                const sel = document.getElementById('contractor');
+                sel.innerHTML = '<option value="">Unable to load contractors</option>';
+            }
+        }
+
+        async function loadMills() {
+            try {
+                const resp = await fetchWithAuth(`${window.API_URL}/mills`);
+                let mills = [];
+                if (Array.isArray(resp?.mill_rates)) mills = resp.mill_rates;
+                else if (Array.isArray(resp?.mills)) mills = resp.mills;
+                else if (Array.isArray(resp)) mills = resp;
+
+                const container = document.getElementById('millsContainer');
+                if (!mills.length) {
+                    container.innerHTML = '<div style="color:#888;">No mills available</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                mills.forEach((m) => {
+                    const id = m.mill_id ?? m.id ?? m._id ?? '';
+                    const name = m.mill_name ?? m.name ?? '';
+                    const rate = m.rate_per_ton ?? m.rate ?? '';
+
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.gap = '8px';
+                    row.style.marginBottom = '8px';
+
+                    const label = document.createElement('div');
+                    label.style.minWidth = '160px';
+                    label.textContent = name || id;
+
+                    const inputBox = document.createElement('div');
+                    inputBox.style.flex = '1';
+                    inputBox.style.background = 'transparent';
+
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = '0.01';
+                    input.className = 'mill-rate-input';
+                    input.setAttribute('data-mill-id', id);
+                    input.setAttribute('data-mill-name', name);
+                    input.placeholder = 'Rate per ton';
+                    if (rate !== undefined && rate !== null) input.value = rate;
+
+                    inputBox.appendChild(input);
+                    row.appendChild(label);
+                    row.appendChild(inputBox);
+                    container.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Failed to load mills:', error);
+                const container = document.getElementById('millsContainer');
+                container.innerHTML = '<div style="color:#888;">Unable to load mills</div>';
+            }
+        }
+
+        // initialize contractors and mills then load job (if editing)
+        (async function init() {
+            try {
+                await requireAuthOrRedirect('login.php');
+            } catch (e) {
+                // handled by auth
+            }
+            await Promise.all([loadContractors(), loadMills()]);
+            await loadJobForEdit();
+        })();
     </script>
 </body>
 </html>

@@ -19,6 +19,8 @@ $__currentFile = basename($_SERVER['PHP_SELF']);
 $__pageTitle = $__titles[$__currentFile] ?? 'Dashboard';
 ?>
 <link rel="stylesheet" href="assets/css/app.css">
+<link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+<link rel="shortcut icon" href="assets/images/favicon.svg" type="image/svg+xml">
 <header class="topbar">
     <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
