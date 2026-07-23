@@ -617,9 +617,7 @@ $isEdit = !empty($millId);
     <script>
         window.API_URL = '<?php echo addslashes($API_URL); ?>';
         window.MILL_ID = '<?php echo addslashes($millId); ?>';
-        window.IS_EDIT_MODE = '<?php echo $isEdit ? '
-        1 ' : '
-        0 '; ?>';
+        window.IS_EDIT_MODE = '<?php echo $isEdit ? "1" : "0"; ?>';
     </script>
     <script src="assets/js/auth.js?v=4"></script>
     <script>
@@ -629,7 +627,7 @@ $isEdit = !empty($millId);
         }
 
         function escapeHtml(value) {
-            return String(value ? ? '')
+            return String(value ?? '')   // ✅
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
@@ -659,7 +657,7 @@ $isEdit = !empty($millId);
             try {
                 await requireAuthOrRedirect('login.php');
                 const response = await fetchWithAuth(`${window.API_URL}/mills`);
-                const mills = Array.isArray(response ? .mills) ? response.mills : [];
+                const mills = Array.isArray(response?.mills) ? response.mills : [];
                 const list = document.getElementById('mills_list');
                 const status = document.getElementById('mills_status');
                 if (status) {
@@ -770,8 +768,7 @@ $isEdit = !empty($millId);
                     },
                     body: JSON.stringify(payload)
                 });
-                const message = response ? .message || (millId ? 'Mill updated successfully.' :
-                    'Mill created successfully.');
+                const message = response?.message || (millId ? 'Mill updated successfully.' : 'Mill created successfully.');
                 alert(message);
                 resetMillForm();
                 await loadMills();
