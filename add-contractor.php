@@ -19,9 +19,9 @@ $isEdit = !empty($contractorId);
 </head>
 <body>
     <div class="main-wrapper">
-        <?php include 'includes\\sidebar.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
         <div class="page-wrapper">
-            <?php include 'includes\\header.php'; ?>
+            <?php include 'includes/header.php'; ?>
 
             <div class="page-content">
 
@@ -285,3 +285,4 @@ $isEdit = !empty($contractorId);
     </script>
 </body>
 </html>
+

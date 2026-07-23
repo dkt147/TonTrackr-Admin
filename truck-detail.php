@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle  = 'Truck Detail';
 $activePage = 'drivers';
 include 'config.php';
@@ -10,7 +10,7 @@ $truckName = $truckId ? 'Truck ' . $truckId : 'Truck Detail';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TonTrackr · <?php echo htmlspecialchars($truckName); ?></title>
+    <title>TonTrackr � <?php echo htmlspecialchars($truckName); ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/app.css">
@@ -32,14 +32,14 @@ $truckName = $truckId ? 'Truck ' . $truckId : 'Truck Detail';
 </head>
 <body>
     <div class="main-wrapper">
-        <?php include 'includes\\sidebar.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
         <div class="page-wrapper">
-            <?php include 'includes\\header.php'; ?>
+            <?php include 'includes/header.php'; ?>
 
             <div class="page-content">
                 <div class="page-head" style="align-items:flex-start; gap:16px; flex-wrap:wrap;">
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer" onclick="location.href='trucks.php'">
-                        <button class="btn-pill small" type="button">← BACK</button>
+                        <button class="btn-pill small" type="button">? BACK</button>
                         <div>
                             <p class="page-eyebrow">Trucks</p>
                             <h1 class="page-title"><?php echo htmlspecialchars($truckName); ?></h1>
@@ -64,7 +64,7 @@ $truckName = $truckId ? 'Truck ' . $truckId : 'Truck Detail';
         window.TRUCK_ID = '<?php echo addslashes($truckId); ?>';
 
         function formatValue(value) {
-            return value || '—';
+            return value || '�';
         }
 
         function renderTruckDetails(truck) {
@@ -131,3 +131,4 @@ $truckName = $truckId ? 'Truck ' . $truckId : 'Truck Detail';
     </script>
 </body>
 </html>
+

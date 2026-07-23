@@ -123,9 +123,9 @@ $driverId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
 </head>
 <body>
     <div class="main-wrapper">
-        <?php include 'includes\\sidebar.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
         <div class="page-wrapper">
-            <?php include 'includes\\header.php'; ?>
+            <?php include 'includes/header.php'; ?>
 
             <div class="page-content">
                 <div class="page-head" style="align-items:flex-start; gap:16px; flex-wrap:wrap;">
@@ -355,3 +355,4 @@ $driverId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
     </script>
 </body>
 </html>
+

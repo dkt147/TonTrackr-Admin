@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle  = 'Add a Truck';
 $activePage = 'drivers';
 include 'config.php';
@@ -10,7 +10,7 @@ $isEdit = !empty($truckId);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TonTrackr · <?php echo htmlspecialchars($isEdit ? 'Edit Truck' : 'Add a Truck'); ?></title>
+    <title>TonTrackr � <?php echo htmlspecialchars($isEdit ? 'Edit Truck' : 'Add a Truck'); ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/app.css">
@@ -19,15 +19,15 @@ $isEdit = !empty($truckId);
 </head>
 <body>
     <div class="main-wrapper">
-        <?php include 'includes\\sidebar.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
         <div class="page-wrapper">
-            <?php include 'includes\\header.php'; ?>
+            <?php include 'includes/header.php'; ?>
 
             <div class="page-content">
 
                 <div class="page-head">
                     <div style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="location.href='trucks.php'">
-                        <button class="btn-pill small" type="button">← BACK</button>
+                        <button class="btn-pill small" type="button">? BACK</button>
                         <div>
                             <p class="page-eyebrow">Trucks</p>
                             <h1 class="page-title"><?php echo htmlspecialchars($isEdit ? 'Edit Truck' : 'Add a Truck'); ?></h1>
@@ -157,3 +157,4 @@ $isEdit = !empty($truckId);
     </script>
 </body>
 </html>
+
